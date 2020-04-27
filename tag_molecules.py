@@ -135,34 +135,34 @@ def get_tries(bam,fasta_file, g_dict):
     for read in bam.fetch(g_dict['seqid'],g_dict['start'],g_dict['end']):
         if read.get_tag('XT') != g_dict['gene_id']:
             continue
-        if not read.is_unmapped:
-            read_trie[read.query_name] = read
-            offset = 0
-            tc_list = []
-            sc_list = []
-            cl_list = []
-            mut_list = []
-            intervals = intervals_extract(read.get_reference_positions())
-            for inter in intervals:
-                ref_seq = fasta_ref[read.reference_name][inter[0]:inter[1]].seq
-                read_seq = read.query_alignment_sequence[offset:offset + (inter[1]-inter[0])]
-                offset += inter[1]-inter[0] + 1
-                tc, sc, cl, ml = compare(read_seq, ref_seq, read.is_reverse, inter[0])
-                tc_list.append(tc)
-                sc_list.append(sc)
-                cl_list.append(cl)
-                mut_list.append(ml)
-            strand[read.query_name] = read.is_reverse
-            t = Counter()
-            [t.update(i) for i in tc_list]
-            s = Counter()
-            [s.update(i) for i in sc_list]
-            full_cl_list = [item for sublist in cl_list for item in sublist]
-            full_mut_list = {item[0]:item[1] for sublist in mut_list for item in sublist.items()}
-            t_trie[read.query_name] = t
-            s_trie[read.query_name] = s
-            conv_trie[read.query_name] = (full_cl_list, [i for i in intervals_extract(read.get_reference_positions())])
-            mut_trie[read.query_name] = full_mut_list
+
+        read_trie[read.query_name] = read
+        offset = 0
+        tc_list = []
+        sc_list = []
+        cl_list = []
+        mut_list = []
+        intervals = intervals_extract(read.get_reference_positions())
+        for inter in intervals:
+            ref_seq = fasta_ref[read.reference_name][inter[0]:inter[1]].seq
+            read_seq = read.query_alignment_sequence[offset:offset + (inter[1]-inter[0])]
+            offset += inter[1]-inter[0] + 1
+            tc, sc, cl, ml = compare(read_seq, ref_seq, read.is_reverse, inter[0])
+            tc_list.append(tc)
+            sc_list.append(sc)
+            cl_list.append(cl)
+            mut_list.append(ml)
+        strand[read.query_name] = read.is_reverse
+        t = Counter()
+        [t.update(i) for i in tc_list]
+        s = Counter()
+        [s.update(i) for i in sc_list]
+        full_cl_list = [item for sublist in cl_list for item in sublist]
+        full_mut_list = {item[0]:item[1] for sublist in mut_list for item in sublist.items()}
+        t_trie[read.query_name] = t
+        s_trie[read.query_name] = s
+        conv_trie[read.query_name] = (full_cl_list, [i for i in intervals_extract(read.get_reference_positions())])
+        mut_trie[read.query_name] = full_mut_list
     fasta_ref.close()
     return read_trie,mut_trie,conv_trie,t_trie, s_trie,strand
 

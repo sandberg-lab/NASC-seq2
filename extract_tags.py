@@ -9,42 +9,24 @@ import time
 import pygtrie
 def write_tags(content_list, gene):
     bases = ['a','t','c','g']
-    f = h5py.File(h5outfile + gene + '.h5', 'a')
+    f = h5py.File(h5outfile + gene + '_new.h5', 'a')
     print(gene, len(content_list))
     for content_dict in content_list:
         name = content_dict['name']
-        if 'cells/{name}'.format(name=name) in f:
+        if '/{name}'.format(name=name) in f:
             continue
-        f.create_dataset('cells/{name}/sc/cA'.format(name=name), data=content_dict['sc'][('c','A')])
-        f.create_dataset('cells/{name}/sc/gA'.format(name=name), data=content_dict['sc'][('g','A')])
-        f.create_dataset('cells/{name}/sc/tA'.format(name=name), data=content_dict['sc'][('t','A')])
-        f.create_dataset('cells/{name}/sc/gC'.format(name=name), data=content_dict['sc'][('g','C')])
-        f.create_dataset('cells/{name}/sc/tC'.format(name=name), data=content_dict['sc'][('t','C')])
-        f.create_dataset('cells/{name}/sc/aC'.format(name=name), data=content_dict['sc'][('a','C')])
-        f.create_dataset('cells/{name}/sc/aG'.format(name=name), data=content_dict['sc'][('a','G')])
-        f.create_dataset('cells/{name}/sc/cG'.format(name=name), data=content_dict['sc'][('c','G')])
-        f.create_dataset('cells/{name}/sc/tG'.format(name=name), data=content_dict['sc'][('t','G')])
-        f.create_dataset('cells/{name}/sc/aT'.format(name=name), data=content_dict['sc'][('a','T')])
-        f.create_dataset('cells/{name}/sc/cT'.format(name=name), data=content_dict['sc'][('c','T')])
-        f.create_dataset('cells/{name}/sc/gT'.format(name=name), data=content_dict['sc'][('g','T')])
-        f.create_dataset('cells/{name}/sc/aN'.format(name=name), data=content_dict['sc'][('a','N')])
-        f.create_dataset('cells/{name}/sc/cN'.format(name=name), data=content_dict['sc'][('c','N')])
-        f.create_dataset('cells/{name}/sc/gN'.format(name=name), data=content_dict['sc'][('g','N')])
-        f.create_dataset('cells/{name}/sc/tN'.format(name=name), data=content_dict['sc'][('t','N')])
-        f.create_dataset('cells/{name}/sc/nA'.format(name=name), data=content_dict['sc'][('n','A')])
-        f.create_dataset('cells/{name}/sc/nC'.format(name=name), data=content_dict['sc'][('n','C')])
-        f.create_dataset('cells/{name}/sc/nT'.format(name=name), data=content_dict['sc'][('n','T')])
-        f.create_dataset('cells/{name}/sc/nG'.format(name=name), data=content_dict['sc'][('n','G')])
-        for b in bases:
-            f.create_dataset('cells/{name}/tc/{base}'.format(name=name,base=b), data=content_dict['tc'][b])
+        grp = f.create_group('/{name}'.format(name=name))
+        grp.create_dataset('sc'.format(name=name), data=content_dict['sc'])
+        grp.create_dataset('tc'.format(name=name), data=content_dict['tc'])
         if 'cl' in content_dict:
-            f.create_dataset('cells/{name}/cl'.format(name=name), data=content_dict['cl'])
-        f.create_dataset('cells/{name}/nr'.format(name=name), data=content_dict['nr'])
-        f.create_dataset('cells/{name}/ir'.format(name=name), data=content_dict['ir'])
-        f.create_dataset('cells/{name}/er'.format(name=name), data=content_dict['er'])
-        f.create_dataset('cells/{name}/start'.format(name=name), data=content_dict['start'])
-        f.create_dataset('cells/{name}/end'.format(name=name), data=content_dict['end'])
-        f.create_dataset('cells/{name}/rl'.format(name=name), data=content_dict['rl'])
+            grp.create_dataset('cl'.format(name=name), data=content_dict['cl'])
+        
+        grp.attrs['nl'] = content_dict['nr']
+        grp.attrs['ir'] = content_dict['ir']
+        grp.attrs['er'] = content_dict['er']
+        grp.attrs['start'] = content_dict['start']
+        grp.attrs['end'] = content_dict['end']
+        grp.attrs['rl'] = content_dict['rl']
     f.close()
     return None
 
@@ -64,18 +46,21 @@ def parseSCTag(read):
         specific_conversions[(c[0], c[1])] = np.int_(c[2:])
     return specific_conversions
 
+
 def get_tags(filename_bam, g_dict):
     content_list = []
     content_append = content_list.append
     bam = pysam.AlignmentFile(filename_bam, 'r')
     for mol in bam.fetch(g_dict['seqid'],g_dict['start'],g_dict['end']):
+        cell =  mol.get_tag('BC')
+        gene = mol.get_tag('XT')
+        umi = mol.get_tag('UB')
         if g_dict['gene_id'] != mol.get_tag('XT'):
             continue
-        name = mol.query_name
-        name = name.replace(':','/')
+        name = '{}/{}'.format(cell,umi)
         content_dict = {'name': name,
-                'sc': parseSCTag(mol),
-                'tc': parseTCTag(mol),
+                'sc': list(parseSCTag(mol).values()),
+                'tc': list(parseTCTag(mol).values()),
                 'nr': mol.get_tag('NR'),
                 'ir': mol.get_tag('IR'),
                 'er': mol.get_tag('ER'),
@@ -87,10 +72,9 @@ def get_tags(filename_bam, g_dict):
             content_dict['cl'] = mol.get_tag('CL')
         content_append(content_dict)
     if len(content_list) > 0:
-        write_tags(content_list, g_dict['gene_id'])
+        write_tags_new(content_list, g_dict['gene_id'])
     bam.close()
     return g_dict['gene_id']
-
 
 if __name__ == '__main__':
     filename_bam = 'mESC_NASCseq_EXP-20-CB7751.sorted.bam'

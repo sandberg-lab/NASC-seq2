@@ -242,13 +242,7 @@ def count_conversions(bfile,fasta_file,vcf_file,g_dict,q):
         gA = s_trie[mol.query_name][('g','A')]
         c = t_trie[mol.query_name]['c']
         g = t_trie[mol.query_name]['g']
-        content_dict = {'mol_string': mol.to_string(),
-                    'cell': mol.query_name.partition(':')[0],
-                    'A_locs': A_locs,
-                    'cT': cT,
-                    'gA': gA,
-                    'c':c,
-                    'g':g}
+        content_dict = {'mol_string': mol.to_string()}
         append_content(content_dict)
     q.put((True,content_list))
     bam.close() 
@@ -279,29 +273,6 @@ def create_h5_function(infile, outfile, h5outfile, version):
                 if is_mol:
                     for content_dict in content_list:
                         new_bamfile.write(content_dict['mol_string']+'\n')
-                        cell = content_dict['cell']
-                        if content_dict['A_locs'][0] != -1:
-                            if A_locs_trie.has_key(cell):
-                                A_locs_trie[cell][content_dict['A_locs'][0],content_dict['A_locs'][1]] += 1
-                            else:
-                                A_locs_trie[cell] = np.zeros((200,200))
-                                A_locs_trie[cell][content_dict['A_locs'][0],content_dict['A_locs'][1]] += 1
-                        if cT_trie.has_key(cell):
-                            cT_trie[cell] += content_dict['cT']
-                        else:
-                            cT_trie[cell] = content_dict['cT']
-                        if gA_trie.has_key(cell):
-                            gA_trie[cell] += content_dict['gA']
-                        else:
-                            gA_trie[cell] = content_dict['gA']
-                        if c_trie.has_key(cell):
-                            c_trie[cell] += content_dict['c']
-                        else:
-                            c_trie[cell] = content_dict['c']
-                        if g_trie.has_key(cell):
-                            g_trie[cell] += content_dict['g']
-                        else:
-                            g_trie[cell] = content_dict['g']
                 else:
                     for pos,d in content_list.items():
                         g = f.require_group('mutations')
@@ -314,16 +285,6 @@ def create_h5_function(infile, outfile, h5outfile, version):
                         dset = gg.create_dataset('cells', data=np.array(d['cells'],dtype='S'))
                         dset = gg.create_dataset('gene', data=d['gene'])
                 q.task_done()
-        for cell, A_locs in A_locs_trie.iteritems():
-            f.create_dataset('cells/{cell}/A_locs'.format(cell=cell), data=A_locs)
-        for cell, cT in cT_trie.iteritems():
-            f.create_dataset('cells/{cell}/cT'.format(cell=cell), data=cT)
-        for cell, gA in gA_trie.iteritems():
-            f.create_dataset('cells/{cell}/gA'.format(cell=cell), data=gA)
-        for cell, c in c_trie.iteritems():
-            f.create_dataset('cells/{cell}/c'.format(cell=cell), data=c)
-        for cell, g in g_trie.iteritems():
-            f.create_dataset('cells/{cell}/g'.format(cell=cell), data=g)
         f.close()
         q.task_done()
         return None

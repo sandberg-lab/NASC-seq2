@@ -133,6 +133,8 @@ def get_tries(bam,fasta_file, g_dict):
     s_trie = pygtrie.StringTrie(separator=':')
     strand = pygtrie.StringTrie(separator=':')
     for read in bam.fetch(g_dict['seqid'],g_dict['start'],g_dict['end']):
+        if read.get_tag('XT') != g_dict['gene_id']:
+            continue
         if not read.is_unmapped:
             read_trie[read.query_name] = read
             offset = 0
@@ -142,8 +144,6 @@ def get_tries(bam,fasta_file, g_dict):
             mut_list = []
             intervals = intervals_extract(read.get_reference_positions())
             for inter in intervals:
-                #print(offset)
-                #print(interval)
                 ref_seq = fasta_ref[read.reference_name][inter[0]:inter[1]].seq
                 read_seq = read.query_alignment_sequence[offset:offset + (inter[1]-inter[0])]
                 offset += inter[1]-inter[0] + 1
@@ -152,9 +152,6 @@ def get_tries(bam,fasta_file, g_dict):
                 sc_list.append(sc)
                 cl_list.append(cl)
                 mut_list.append(ml)
-                #print(tc)
-                #print(sc)
-                #print(cl)
             strand[read.query_name] = read.is_reverse
             t = Counter()
             [t.update(i) for i in tc_list]

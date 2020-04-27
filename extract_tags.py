@@ -9,7 +9,7 @@ import time
 import pygtrie
 def write_tags(content_list, gene):
     bases = ['a','t','c','g']
-    f = h5py.File(h5outfile + gene + '_new.h5', 'a')
+    f = h5py.File(h5outfile + gene + '.h5', 'a')
     print(gene, len(content_list))
     for content_dict in content_list:
         name = content_dict['name']

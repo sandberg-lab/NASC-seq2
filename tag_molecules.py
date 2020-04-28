@@ -228,17 +228,6 @@ def count_conversions(bfile,fasta_file,vcf_file,g_dict,q):
         mol.set_tag('TC',createTag(t_trie[mol.query_name]),'Z')
         if len(conv_trie[mol.query_name][0]) > 0:
             mol.set_tag('CL',conv_trie[mol.query_name][0])
-        A_locs = (-1,-1)
-        if mol.is_reverse:
-            if s_trie[mol.query_name][('a','G')] < 200 and t_trie[mol.query_name]['a'] < 200:
-                A_locs = (s_trie[mol.query_name][('a','G')],t_trie[mol.query_name]['a'])
-        else:
-            if s_trie[mol.query_name][('t','C')] < 200 and t_trie[mol.query_name]['t'] < 200:
-                A_locs = (s_trie[mol.query_name][('t','C')],t_trie[mol.query_name]['t'])
-        cT = s_trie[mol.query_name][('c','T')]
-        gA = s_trie[mol.query_name][('g','A')]
-        c = t_trie[mol.query_name]['c']
-        g = t_trie[mol.query_name]['g']
         content_dict = {'mol_string': mol.to_string()}
         append_content(content_dict)
     q.put((True,content_list))

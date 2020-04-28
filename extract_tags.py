@@ -72,7 +72,7 @@ def get_tags(filename_bam, g_dict):
             content_dict['cl'] = mol.get_tag('CL')
         content_append(content_dict)
     if len(content_list) > 0:
-        write_tags_new(content_list, g_dict['gene_id'])
+        write_tags(content_list, g_dict['gene_id'])
     bam.close()
     return g_dict['gene_id']
 

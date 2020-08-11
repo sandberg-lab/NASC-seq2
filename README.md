@@ -7,7 +7,7 @@ tag_molecules.py [-h] [-i input] [-o output] [-g GTF] [-f FASTA]
                         [-v VCF] [-mut MUTATIONS] [-t threads]
                         [--contig contig]
 
-**arguments**
+**arguments:**
 ```
   -h, --help show this help message and exit
   -i input, --input input Input .bam file

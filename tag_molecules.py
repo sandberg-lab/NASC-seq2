@@ -6,9 +6,9 @@ import itertools
 import pygtrie
 import vcf
 import gc
+import argparse
 import seaborn as sns
 from collections import Counter
-from pympler import tracker
 from pyfaidx import Fasta
 from scipy.stats import binom
 import os
@@ -244,48 +244,58 @@ def create_h5_function(infile, outfile, h5outfile, version):
     bamfile = pysam.AlignmentFile(infile, 'rb')
     h = bamfile.header
     def write_new_reads_and_pc_data(q):
-        new_bamfile = pysam.AlignmentFile(outfile, mode='w',template=bamfile)
-        new_bamfile.close()
-        A_locs_trie = pygtrie.StringTrie()
-        cT_trie = pygtrie.StringTrie()
-        gA_trie = pygtrie.StringTrie()
-        c_trie = pygtrie.StringTrie()
-        g_trie = pygtrie.StringTrie()
+        new_bamfile = pysam.AlignmentFile(outfile, mode='wb',template=bamfile)
         f = h5py.File(h5outfile, 'a', libver='latest')
-        with open(outfile, 'a') as new_bamfile:
-            while True:
-                is_mol,content_list = q.get()
-                if is_mol == None: break
-                if is_mol:
-                    for content_dict in content_list:
-                        new_bamfile.write(content_dict['mol_string']+'\n')
-                else:
-                    for pos,d in content_list.items():
-                        g = f.require_group('mutations')
-                        gg = g.require_group('{chrom}/{gene}/{pos}/'.format(chrom=d['chrom'],gene=d['gene'], pos=d['pos']))
-                        dset = gg.create_dataset('conversions', data=np.int_(d['conversions'])) 
-                        dset = gg.create_dataset('coverage', data=np.int_(d['coverage']))
-                        dset = gg.create_dataset('fraction', data=d['fraction'])
-                        dset = gg.create_dataset('pval', data=d['pval'])
-                        dset = gg.create_dataset('ref', data=d['ref'])
-                        dset = gg.create_dataset('cells', data=np.array(d['cells'],dtype='S'))
-                        dset = gg.create_dataset('gene', data=d['gene'])
-                q.task_done()
+        while True:
+            is_mol,content_list = q.get()
+            if is_mol == None: break
+            if is_mol:
+                for content_dict in content_list:
+                    new_bamfile.write(pysam.AlignedRead.fromstring(content_dict['mol_string'],h))
+            else:
+                 for pos,d in content_list.items():
+                    g = f.require_group('mutations')
+                    gg = g.require_group('{chrom}/{gene}/{pos}/'.format(chrom=d['chrom'],gene=d['gene'], pos=d['pos']))
+                    dset = gg.create_dataset('conversions', data=np.int_(d['conversions'])) 
+                    dset = gg.create_dataset('coverage', data=np.int_(d['coverage']))
+                    dset = gg.create_dataset('fraction', data=d['fraction'])
+                    dset = gg.create_dataset('pval', data=d['pval'])
+                    dset = gg.create_dataset('ref', data=d['ref'])
+                    dset = gg.create_dataset('cells', data=np.array(d['cells'],dtype='S'))
+                    dset = gg.create_dataset('gene', data=d['gene'])
+            q.task_done()
         f.close()
         q.task_done()
         return None
     return write_new_reads_and_pc_data
 
 if __name__ == '__main__':
-    vcf_file = '/mnt/storage1/home/antonl/meta/vcf/CAST.SNPs.validated.vcf.gz'
-    gtffile = '/mnt/davidson/hendgert/recovered/resources/gtf/mouse/Mus_musculus.GRCm38.91.chr.clean.gtf'
-    bfile = '/mnt/storage1/home/antonl/projects/NASC-seq/testing/mESC_NASCseq_EXP-20-CB7751.filtered.Aligned.GeneTagged.UBcorrected.sorted.stitched.fixed.sorted.bam'
-    fasta_file = '/mnt/davidson/hendgert/recovered/resources/genomes/Mouse_CAST_Nmasked/mm10_Nmasked.fa'
-    outfile = 'mESC_NASCseq_EXP-20-CB7751.sam'
-    h5outfile = 'mESC_NASCseq_EXP-20-CB7751.h5'
-    counts = '/mnt/backup/scratch_Backup/hendgert/data/mESC_NASCseq_EXP-20-CB7751_stranded/zUMIs_output/expression/mESC_NASCseq_EXP-20-CB7751.dgecounts.rds'
-    contig = None
-    threads = 250
+    parser = argparse.ArgumentParser(description='Tag molecules for NASC-seq2')
+    parser.add_argument('-i','--input',metavar='input', type=str, help='Input .bam file')
+    parser.add_argument('-o','--output', metavar='output',type=str, help='Output .bam file')
+    parser.add_argument('-g','--gtf',type=str, help='gtf file with gene information')
+    parser.add_argument('-f','--fasta',type=str, help='Fasta file for your reference genome')
+    parser.add_argument('-v','--vcf',type=str, help='vcf file with genotype information')
+    parser.add_argument('-mut','--mutations',type=str, help='Output hdf5 file with mutation information')
+    parser.add_argument('-t', '--threads', metavar='threads', type=int, default=1, help='Number of threads')
+    parser.add_argument('--contig', default=None, metavar='contig', type=str, help='Restrict stitching to contig')
+    args = parser.parse_args()
+#    vcf_file = '/mnt/storage1/home/antonl/meta/vcf/CAST.SNPs.validated.vcf.gz'
+    vcf_file = args.vcf
+#    gtffile = '/mnt/davidson/hendgert/recovered/resources/gtf/mouse/Mus_musculus.GRCm38.91.chr.clean.gtf'
+    gtffile = args.gtf
+#    bfile = '/mnt/storage1/home/antonl/projects/NASC-seq/testing/mESC_NASCseq_EXP-20-CB7751.filtered.Aligned.GeneTagged.UBcorrected.sorted.stitched.fixed.sorted.bam'
+    bfile = args.input
+#    fasta_file = '/mnt/davidson/hendgert/recovered/resources/genomes/Mouse_CAST_Nmasked/mm10_Nmasked.fa'
+    fasta_file = args.fasta
+#    outfile = 'mESC_NASCseq_EXP-20-CB7751.sam'
+    outfile = args.output
+#    h5outfile = 'mESC_NASCseq_EXP-20-CB7751.h5'
+    h5outfile = args.mutations
+   
+#    contig = None
+    contig = args.contig
+    threads = int(args.threads)
     gene_list = []
     with open(gtffile, 'r') as f:
         for line in f:

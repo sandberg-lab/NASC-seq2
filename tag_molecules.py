@@ -303,6 +303,8 @@ if __name__ == '__main__':
     with open(gtffile, 'r') as f:
         for line in f:
             l = line.split('\t')
+            if len(l) > 8:
+                continue
             if l[2] == 'gene':
                 if contig is not None:
                     if l[0] == contig:

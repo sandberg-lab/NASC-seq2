@@ -278,7 +278,7 @@ if __name__ == '__main__':
     parser.add_argument('-o','--output', metavar='output',type=str, help='Output .bam file')
     parser.add_argument('-g','--gtf',type=str, help='gtf file with gene information')
     parser.add_argument('-f','--fasta',type=str, help='Fasta file for your reference genome')
-    parser.add_argument('-v','--vcf',type=str,default=None help='vcf file with genotype information')
+    parser.add_argument('-v','--vcf',type=str,default=None, help='vcf file with genotype information')
     parser.add_argument('-mut','--mutations',type=str, help='Output hdf5 file with mutation information')
     parser.add_argument('-t', '--threads', metavar='threads', type=int, default=1, help='Number of threads')
     parser.add_argument('--contig', default=None, metavar='contig', type=str, help='Restrict stitching to contig')

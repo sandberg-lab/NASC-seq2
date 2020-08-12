@@ -28,12 +28,9 @@ extract_tags.py [-h] [-i input] [-o output] [-g gtf] [-t threads]
 **arguments:**
 ```
   -h, --help            show this help message and exit
-  -i input, --input input
-                        Input .bam file
-  -o output, --output output
-                        Output .h5 file
+  -i input, --input input Input .bam file
+  -o output, --output output Output .h5 file
   -g gtf, --gtf gtf     gtf file with gene information
-  -t threads, --threads threads
-                        Number of threads
+  -t threads, --threads threads Number of threads
   --contig contig       Restrict extraction to contig
 ```

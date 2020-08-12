@@ -187,18 +187,21 @@ def find_mutations(conv_trie,mut_trie,g_dict, vcf_reader):
         return False, None, None
 
     comparison_dict = {}
-    vcf_reader = vcf.Reader(filename=vcf_file)
-    for i in vcf_reader.fetch(g_dict['seqid'],g_dict['start'],g_dict['end']):
-        comparison_dict[i.POS-1] = (i.REF, i.ALT[0])
-    del vcf_reader
+    if vcf_file is not None:
+        vcf_reader = vcf.Reader(filename=vcf_file)
+        for i in vcf_reader.fetch(g_dict['seqid'],g_dict['start'],g_dict['end']):
+            comparison_dict[i.POS-1] = (i.REF, i.ALT[0])
+        del vcf_reader
     p_median = stats_df['fraction'].median()
     stats_df['pval'] = stats_df.apply(lambda row: binom.sf(row['conversions'],row['coverage'], p_median), axis=1)
-    frac_ref = stats_df.apply(lambda row: np.array(list(get_alleles(locs_df.index[locs_df[row.name]].values,mut_trie,comparison_dict,g_dict['strand']))), axis=1).apply(lambda x: np.mean(x[~np.isnan(x)]) if np.mean(np.isnan(x)) != 1 else np.nan)
-    frac_ref.name = 'frac_ref'
-
-    stats_df = stats_df.join(frac_ref)
-    sig_df = stats_df[(stats_df['num_cells']>4).mul((stats_df['frac_ref'] - 0.5).abs() > 0.3).mul(stats_df['pval'] < 0.05/stats_df.shape[0])].sort_values('pval')
-    sig_df['ref'] = sig_df['frac_ref'] > 0.5
+    if vcf_file is not None:
+        frac_ref = stats_df.apply(lambda row: np.array(list(get_alleles(locs_df.index[locs_df[row.name]].values,mut_trie,comparison_dict,g_dict['strand']))), axis=1).apply(lambda x: np.mean(x[~np.isnan(x)]) if np.mean(np.isnan(x)) != 1 else np.nan)
+        frac_ref.name = 'frac_ref'
+        stats_df = stats_df.join(frac_ref)
+        sig_df = stats_df[(stats_df['num_cells']>4).mul((stats_df['frac_ref'] - 0.5).abs() > 0.3).mul(stats_df['pval'] < 0.05/stats_df.shape[0])].sort_values('pval')
+        sig_df['ref'] = sig_df['frac_ref'] > 0.5
+    sig_df = stats_df[(stats_df['num_cells']>4).mul(stats_df['pval'] < 0.05/stats_df.shape[0])].sort_values('pval')
+    sig_df['ref'] = True
     sig_df['pos'] = sig_df.index
     sig_df['chrom'] = g_dict['seqid']
     sig_df['gene'] = g_dict['gene_id']
@@ -275,7 +278,7 @@ if __name__ == '__main__':
     parser.add_argument('-o','--output', metavar='output',type=str, help='Output .bam file')
     parser.add_argument('-g','--gtf',type=str, help='gtf file with gene information')
     parser.add_argument('-f','--fasta',type=str, help='Fasta file for your reference genome')
-    parser.add_argument('-v','--vcf',type=str, help='vcf file with genotype information')
+    parser.add_argument('-v','--vcf',type=str,default=None help='vcf file with genotype information')
     parser.add_argument('-mut','--mutations',type=str, help='Output hdf5 file with mutation information')
     parser.add_argument('-t', '--threads', metavar='threads', type=int, default=1, help='Number of threads')
     parser.add_argument('--contig', default=None, metavar='contig', type=str, help='Restrict stitching to contig')

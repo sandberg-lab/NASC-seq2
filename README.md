@@ -19,3 +19,21 @@ tag_molecules.py [-h] [-i input] [-o output] [-g GTF] [-f FASTA]
   -t threads, --threads threads Number of threads
   --contig contig       Restrict stitching to contig
 ```
+## extract_tags.py
+
+### Usage
+extract_tags.py [-h] [-i input] [-o output] [-g gtf] [-t threads]
+                       [--contig contig]
+                      
+**arguments:**
+```
+  -h, --help            show this help message and exit
+  -i input, --input input
+                        Input .bam file
+  -o output, --output output
+                        Output .h5 file
+  -g gtf, --gtf gtf     gtf file with gene information
+  -t threads, --threads threads
+                        Number of threads
+  --contig contig       Restrict extraction to contig
+```

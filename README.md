@@ -34,3 +34,14 @@ extract_tags.py [-h] [-i input] [-o output] [-g gtf] [-t threads]
   -t threads, --threads threads Number of threads
   --contig contig       Restrict extraction to contig
 ```
+## estim_pc.py
+
+### Usage
+estim_pc.py [-h] [-h5 input] [-t threads]
+
+**arguments:**
+```
+  -h, --help            show this help message and exit
+  -h5 input, --hdf5 input .h5 file to process
+  -t threads, --threads threads Number of threads
+```

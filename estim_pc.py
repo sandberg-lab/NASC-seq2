@@ -141,7 +141,8 @@ def estim_Pc(cell_id, h5file):
     grp = fd['cells/{}'.format(cell_id)]
     A = sparse.dok_matrix((500,500), dtype=np.int32)
     for k,n in zip(np.concatenate(grp['sc'][:]),np.concatenate(grp['tc'][:])):
-        A[k,n] += 1
+        if k < 500 and n < 500:
+            A[k,n] += 1
     A = A.toarray()
     p_e = (grp['gA'][()]/grp['g'][()] + grp['cT'][()]/grp['c'][()])/2
     fd.close()

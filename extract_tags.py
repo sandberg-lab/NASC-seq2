@@ -108,7 +108,7 @@ def get_tags(filename_bam, g_dict, q):
                     nicer_content_dict[k].append(v)
                 else:
                     nicer_content_dict[k].append(v)
-    q.put((g_dict['gene_id'], nicer_content_dict))
+    q.put((g_dict, nicer_content_dict))
     return g_dict['gene_id']
 
 def create_h5_function(h5outfile):
@@ -116,9 +116,13 @@ def create_h5_function(h5outfile):
         f = h5py.File(h5outfile, 'a', libver='latest')
         grp = f.create_group('genes')
         while True:
-            gene,content_dict = q.get()
+            gene_dict,content_dict = q.get()
             if content_dict == None: break
-            gene_grp = grp.create_group(gene)
+            gene_grp = grp.create_group(gene_dict['gene_id'])
+            gene_grp.attrs['start'] = gene_dict['start']
+            gene_grp.attrs['end'] = gene_dict['end']
+            gene_grp.attrs['strand'] = gene_dict['strand']
+            gene_grp.attrs['chrom'] = gene_dict['seqid']
             for tag, value in content_dict.items():
                 if tag == 'umi':
                     dt = h5py.special_dtype(vlen=str)

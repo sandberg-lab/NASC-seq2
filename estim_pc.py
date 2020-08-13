@@ -98,7 +98,7 @@ def get_cell_dicts(genes,h5file,q):
                 cell_dict[cell]['g'] = np.sum(c)
     ragged_h5_local.close()
     q.put(cell_dict)
-    return gene
+    return None
 def make_write_function(h5file):
     def write_hdf5(q):
         full_cell_dict = {}

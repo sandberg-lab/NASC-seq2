@@ -6,6 +6,7 @@ from scipy import sparse
 import argparse
 import os
 os.environ['HDF5_USE_FILE_LOCKING']='FALSE'
+from scipy.stats import binom
 def createMkn(Akn,p_e): #Left out from Akn
     M=np.zeros(Akn.shape)
     for n in range(Akn.shape[1]):

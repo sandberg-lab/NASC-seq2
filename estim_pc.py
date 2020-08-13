@@ -173,12 +173,12 @@ if __name__ == '__main__':
     fd = h5py.File(h5file,'r')
     cell_list = list(fd['cells'].keys())
     fd.close()
-    params = Parallel(n_jobs=threads, verbose = 3, backend='loky')(delayed(estim_Pc)(gene_id, h5file) for gene_id in cell_list)
+    params = Parallel(n_jobs=threads, verbose = 3, backend='loky')(delayed(estim_Pc)(cell_id, h5file) for cell_id in cell_list)
+    res_dict = {cell_id: (p_c,p_e) for p_c,p_e,cell_id in params}
     print('Done, writing results')
     fd = h5py.File(h5file,'a')
-    for p_c,p_e,cell in params:
-        grp = fd['cells/{}'.format(cell)]
-        grp.attrs['p_c'] = p_c
-        grp.attrs['p_e'] = p_e
+    for cell_id, cell_grp in fd['cells'].items():
+        cell_grp.attrs['p_c'] = res_dict['p_c']
+        cell_grp.attrs['p_e'] = res_dict['p_e']
     fd.close()
 

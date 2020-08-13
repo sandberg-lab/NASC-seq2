@@ -2,7 +2,10 @@ import h5py
 import numpy as np
 from scipy.stats import binom
 import argparse
-
+from multiprocessing import Process, Manager
+from joblib import delayed,Parallel
+import os
+os.environ['HDF5_USE_FILE_LOCKING']='FALSE'
 def calc_power(n,criteria, p_c,p_e):
     r = np.arange(n+1)
     t = np.isclose(binom.pmf(r,n,p_e)/binom.pmf(r,n,p_c), criteria['c'])
@@ -36,7 +39,6 @@ def cell_new_htest(cell_id, h5file, a, q):
     grp = fd['cells/{}'.format(cell_id)]
     p_c = grp.attrs['p_c']
     p_e = grp.attrs['p_e']
-    print(p_c,p_e)
     if p_c < p_e:
         p_c = p_e + 1e-5
     gene_array = grp['gene'][:]
@@ -67,7 +69,9 @@ def cell_new_htest(cell_id, h5file, a, q):
     fd.close()
     q.put((cell_id, res_dict))
     return cell_id
-
+from itertools import accumulate
+def split_list(l, len_to_split):
+    return [l[x - y: x] for x,y in zip(accumulate(len_to_split), len_to_split)]
 def make_write_function(h5file):
     def write_hdf5(q):
         full_gene_dict = {}
@@ -75,6 +79,7 @@ def make_write_function(h5file):
             cell_id,cell_dict = q.get()
             if cell_dict is None: break
             for gene,htest,rel_ll,c_htest,q_htest,power in zip(*cell_dict.values()):
+                gene = gene.decode('utf-8')
                 if gene in full_gene_dict:
                     full_gene_dict[gene][cell_id] = {'htest':htest,'rel_ll':rel_ll, 'c_htest':c_htest,'q_htest':q_htest, 'power':power}
                 else:
@@ -84,15 +89,16 @@ def make_write_function(h5file):
             q.task_done()
         data_to_write = {}
         
-        hdf5_file = h5py.File(h5file, 'r')
+        hdf5_file = h5py.File(h5file, 'a')
         genes_grp = hdf5_file['genes']
         for gene, gene_grp in genes_grp.items():
             data_to_write = {'htest':[],'rel_ll':[],'c_htest':[],'q_htest':[],'power':[]}
             specific_gene_dict = full_gene_dict[gene]
             for cell_id in gene_grp['cell'][:]:
+                cell_id = cell_id.decode('utf-8')
                 for k in data_to_write.keys():
-                    data_to_write.append(specific_gene_dict[cell_id][k])
-            for k,v in data_to_write[gene].items():
+                    data_to_write[k].append(specific_gene_dict[cell_id][k])
+            for k,v in data_to_write.items():
                 dset = gene_grp.create_dataset(k, (len(v),),dtype=h5py.vlen_dtype(np.dtype('int32')))
                 for i, arr in enumerate(v):
                     dset[i] = arr

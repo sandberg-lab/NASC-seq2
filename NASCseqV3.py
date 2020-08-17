@@ -14,6 +14,7 @@ import yaml
 ### List of required packages and versions
 ### Flag / partial run handling
 ### Optional VCF handling
+### Additional error handling in sorting and indexing!
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
@@ -47,12 +48,12 @@ def safe_mkdir(f):
 
 def run_cmd(cmd,commandlogfile,verbose):
     commandlogfile.write('%s\n' % " ".join(cmd))
-    if verbose=='FALSE':
+    if str(verbose)=='False':
         subprocess.call(" ".join(cmd),shell=True)
 
 def sort_bam(infile,outfile,numCPU,mem_limit,commandlogfile,verbose):
     sortThreads = int(int(numCPU)/10) ## No need for 100-200 CPUs for this process...
-    sortMem = ''.join([str(int(mem_limit)/sortThreads),'G'])
+    sortMem = ''.join([str(int(int(mem_limit)/sortThreads)),'G'])
     run_cmd(['samtools sort',infile,'-o',outfile,'-m',sortMem,'-@',str(sortThreads)],commandlogfile,verbose=verbose)
     run_cmd(['samtools index',outfile,'-@',str(sortThreads)],commandlogfile,verbose=verbose)
 

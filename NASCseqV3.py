@@ -11,7 +11,7 @@ import yaml
 ### File handling when files already exist?
 ### Cleanup of temporary files
 ### Reporting structure to the user and logging
-### Additional error handling in sorting and indexing!
+### Error handling confirmation
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
@@ -55,6 +55,16 @@ def sort_bam(infile,outfile,numCPU,mem_limit,commandlogfile,verbose):
     run_cmd(['samtools sort',infile,'-o',outfile,'-m',sortMem,'-@',str(sortThreads)],commandlogfile,verbose=verbose)
     run_cmd(['samtools index',outfile,'-@',str(sortThreads)],commandlogfile,verbose=verbose)
 
+def check_logfile(logfile,patterns = ['Error','error']):
+	with open(logfile) as file:
+    contents = file.read()
+	x = 0
+	for(pattern in patterns):
+    	if pattern in contents:
+        	x+=1
+	if x>0:
+		print('Errors have been detected... please check your logfile here: %s' % logfile)
+
 ## Prepare directories and files
 safe_mkdir(os.path.join(experimentdir,'NASC-seq'))
 safe_mkdir(os.path.join(experimentdir,'NASC-seq','logfiles'))
@@ -68,6 +78,7 @@ if NASCflag=='stitcher' or NASCflag=='all':
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','stitcherlog.txt')
 	indexfile = yamldata['barcodes']['barcode_file']
 	run_cmd(['nohup',python_exec,stitcher_exec,'--input',infile,'--o',outfile,'--g',gtf,'--iso',isoform,'--t',str(numCPU),'--cells',indexfile,'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
+	check_logfile(logfile)
 	outfileSorted = os.path.join(experimentdir,yamldata['project']+'.stitched.sorted.bam')
 	sort_bam(outfile,outfileSorted,str(numCPU),mem_limit,commandlogfile,verbose)
 	print('Finished stitching reads')
@@ -78,6 +89,7 @@ if NASCflag=='tag' or NASCflag=='all':
 	mutfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.mutationfile.hdf5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','taglog.txt')
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'tag_molecules.py'),'-i',infile,'-o',outfile,'-g',gtf,'-f',fasta,'-mut',mutfile,'-t',str(numCPU),'>', logfile, '2>&1'],commandlogfile,verbose=verbose)
+	check_logfile(logfile)
 	outfileSorted = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.sorted.bam')
 	sort_bam(outfile,outfileSorted,numCPU,mem_limit,commandlogfile,verbose)
 	print('Finished tagging conversions')
@@ -90,6 +102,8 @@ if NASCflag=='qc' or NASCflag=='all':
 	logfileSpike = os.path.join(experimentdir,'NASC-seq','logfiles','convratespikelog.txt')
 	run_cmd(['nohup',R_exec,os.path.join(scriptpath,'conversionQC.R'),infile,outfile,str(numCPU),yamldata['NASC-seq']['spikeID'],'TRUE','>', logfile, '2>&1'],commandlogfile,verbose=verbose)
 	run_cmd(['nohup',R_exec,os.path.join(scriptpath,'conversionQC.R'),infile,outfileSpike,str(numCPU),yamldata['NASC-seq']['spikeID'],'FALSE','>', logfileSpike, '2>&1'],commandlogfile,verbose=verbose)
+	check_logfile(logfile)
+	check_logfile(logfileSpike)
 	print('Finished conversion rate QC')
 
 if NASCflag=='extract' or NASCflag=='all':
@@ -97,17 +111,20 @@ if NASCflag=='extract' or NASCflag=='all':
 	outfile = os.path.join(experimentdir,yamldata['project']+'.moleculeInformation.h5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','extractlog.txt')
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'extract_tags.py'),'-i',infile,'-o',outfile,'-g',gtf,'-t',str(numCPU),'>',logfile , '2>&1'],commandlogfile,verbose=verbose)
+	check_logfile(logfile)
 	print('Finished extracting information from bam file and creating h5 file')
 
 if NASCflag=='estim_pc' or NASCflag=='all':
 	infile = os.path.join(experimentdir,yamldata['project']+'.moleculeInformation.h5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','estimlog.txt')
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'estim_pc.py'),'-h5',infile,'-t',str(numCPU),'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
+	check_logfile(logfile)
 	print('Finished estimating pc and pe for each cell')
 
 if NASCflag=='hyptest' or NASCflag=='all':
 	infile = os.path.join(experimentdir,yamldata['project']+'.moleculeInformation.h5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','hyptestlog.txt')
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'do_htest.py'),'-h5',infile,'-t',str(numCPU),'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
+	check_logfile(logfile)
 	print('Finished hypothesis testing')
 	print('All done!')

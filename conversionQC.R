@@ -33,14 +33,30 @@ rsamtools_reads <- rbindlist(rsamtools_reads, fill = TRUE, use.names = TRUE)
 
 setDTthreads(numCPU)
 
-rsamtools_reads[, c("tC","aG") := tstrsplit(SC, ';', keep = 6:7)][
-                , tC := as.numeric(substr(tC,3,nchar(tC)))][
-                , aG := as.numeric(substr(aG,3,nchar(aG)))][
-                , c('cov.t','cov.a') := tstrsplit(TC,';',keep=c(4,1))][
-                , cov.t := as.numeric(substr(cov.t,2,nchar(cov.t)))][
-                , cov.a := as.numeric(substr(cov.a,2,nchar(cov.a)))]
+
+
+rsamtools_reads[, c("gA","tC","aG","cT") := tstrsplit(SC, ';', keep = c(2,6,7,11))][
+    , tC := as.numeric(substr(tC,3,nchar(tC)))][
+    , aG := as.numeric(substr(aG,3,nchar(aG)))][
+    , cT := as.numeric(substr(cT,3,nchar(cT)))][
+    , gA := as.numeric(substr(gA,3,nchar(gA)))][
+    , c('cov.a','cov.c','cov.g','cov.t') := tstrsplit(TC,';',keep=c(1,2,3,4))][
+    , cov.t := as.numeric(substr(cov.t,2,nchar(cov.t)))][
+    , cov.a := as.numeric(substr(cov.a,2,nchar(cov.a)))][
+    , cov.c := as.numeric(substr(cov.c,2,nchar(cov.c)))][
+    , cov.g := as.numeric(substr(cov.g,2,nchar(cov.g)))]
 
 rsamtools_reads[,convRatePerCell.tC := sum(tC)/sum(cov.t),by=RG]
 rsamtools_reads[,convRatePerCell.aG := sum(aG)/sum(cov.a),by=RG]
+rsamtools_reads[,convRatePerCell.cT := sum(cT)/sum(cov.c),by=RG]
+rsamtools_reads[,convRatePerCell.gA := sum(gA)/sum(cov.g),by=RG]
+
+ldt <- dtplyr::lazy_dt(rsamtools_reads)
+
+out <- ldt %>%
+  select(RG,convRatePerCell.tC,convRatePerCell.aG,convRatePerCell.cT,convRatePerCell.gA) %>%
+  distinct() %>%
+  as.data.table()
+
 saveRDS(rsamtools_reads,outfile)
 toc()

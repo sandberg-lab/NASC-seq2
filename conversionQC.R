@@ -7,11 +7,11 @@ library(tictoc)
 
 args <- commandArgs(trailingOnly=TRUE)
 
-infile = args[1]
-outfile = args[2]
-numCPU = args[3]
-exclusionString = args[4]
-exclusion = args[5]
+infile <- args[1]
+outfile <- args[2]
+numCPU <- args[3]
+exclusionString <- args[4]
+exclusion <- args[5]
 
 idxstats <- Rsamtools::idxstatsBam(infile)
 idxstats <- idxstats[grep(exclusionString,idxstats$seqnames,invert=as.logical(exclusion),]

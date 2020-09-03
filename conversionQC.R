@@ -14,7 +14,7 @@ exclusionString <- args[4]
 exclusion <- args[5]
 
 idxstats <- Rsamtools::idxstatsBam(infile)
-idxstats <- idxstats[grep(exclusionString,idxstats$seqnames,invert=as.logical(exclusion),]
+idxstats <- idxstats[grep(exclusionString,idxstats$seqnames,invert=as.logical(exclusion)),]
 
 #chunk_bcs = c('TCAGACAGAATCCGTCTTGG') ## For now, option to run this on subset of cells is not implemented
 

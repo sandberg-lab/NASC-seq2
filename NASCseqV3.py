@@ -1,19 +1,16 @@
 #!/usr/bin/env python
+## GJH
 
 import os, argparse, sys, subprocess, time, glob, ntpath, shutil
 from joblib import Parallel, delayed
 import pandas as pd
 import yaml
 
-## # TODO 14.8.2020:
+## 3.9.20 TODO :
 
-### Yaml parameter naming
 ### File handling when files already exist?
 ### Cleanup of temporary files
 ### Reporting structure to the user and logging
-### List of required packages and versions
-### Flag / partial run handling
-### Optional VCF handling
 ### Additional error handling in sorting and indexing!
 
 if __name__ == "__main__":
@@ -40,7 +37,7 @@ vcf = yamldata['NASC-seq']['vcf']
 isoform = yamldata['NASC-seq']['isoform']
 stitcher_exec = yamldata['NASC-seq']['stitcher_exec']
 NASCflag = yamldata['NASC-seq']['NASC-stage']
-python_exec = 'python3'
+python_exec = 'python3' ## Should probably be changed to yaml option...
 R_exec = yamldata['Rscript_exec']
 ## File and folder handling functions
 def safe_mkdir(f):
@@ -87,8 +84,8 @@ if NASCflag=='tag' or NASCflag=='all':
 
 if NASCflag=='qc' or NASCflag=='all':
 	infile = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.bam')
-	outfileSpike = os.path.join(experimentdir,yamldata['project']+'.conversionRates.diySpike.rds')
-	outfile = os.path.join(experimentdir,yamldata['project']+'.conversionRates.rds')
+	outfileSpike = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.conversionRates.diySpike.rds')
+	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.conversionRates.rds')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','convratelog.txt')
 	logfileSpike = os.path.join(experimentdir,'NASC-seq','logfiles','convratespikelog.txt')
 	run_cmd(['nohup',R_exec,os.path.join(scriptpath,'conversionQC.R'),infile,outfile,str(numCPU),yamldata['NASC-seq']['spikeID'],'TRUE','>', logfile, '2>&1'],commandlogfile,verbose=verbose)

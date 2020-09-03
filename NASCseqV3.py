@@ -41,6 +41,7 @@ isoform = yamldata['NASC-seq']['isoform']
 stitcher_exec = yamldata['NASC-seq']['stitcher_exec']
 NASCflag = yamldata['NASC-seq']['NASC-stage']
 python_exec = 'python3'
+R_exec = yamldata['Rscript_exec']
 ## File and folder handling functions
 def safe_mkdir(f):
 	if not os.path.exists(f):
@@ -83,6 +84,16 @@ if NASCflag=='tag' or NASCflag=='all':
 	outfileSorted = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.sorted.bam')
 	sort_bam(outfile,outfileSorted,numCPU,mem_limit,commandlogfile,verbose)
 	print('Finished tagging conversions')
+
+if NASCflag=='qc' or NASCflag=='all':
+	infile = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.bam')
+	outfileSpike = os.path.join(experimentdir,yamldata['project']+'.conversionRates.diySpike.rds')
+	outfile = os.path.join(experimentdir,yamldata['project']+'.conversionRates.rds')
+	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','convratelog.txt')
+	logfileSpike = os.path.join(experimentdir,'NASC-seq','logfiles','convratespikelog.txt')
+	run_cmd(['nohup',R_exec,os.path.join(scriptpath,'conversionQC.R'),infile,outfile,str(numCPU),yamldata['NASC-seq']['spikeID'],'TRUE','>', logfile, '2>&1'],commandlogfile,verbose=verbose)
+	run_cmd(['nohup',R_exec,os.path.join(scriptpath,'conversionQC.R'),infile,outfileSpike,str(numCPU),yamldata['NASC-seq']['spikeID'],'FALSE','>', logfileSpike, '2>&1'],commandlogfile,verbose=verbose)
+	print('Finished conversion rate QC')
 
 if NASCflag=='extract' or NASCflag=='all':
 	infile = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.sorted.bam')

@@ -83,7 +83,7 @@ if NASCflag=='tag' or NASCflag=='all':
 	print('Finished tagging conversions')
 
 if NASCflag=='qc' or NASCflag=='all':
-	infile = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.bam')
+	infile = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.sorted.bam')
 	outfileSpike = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.conversionRates.diySpike.rds')
 	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.conversionRates.rds')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','convratelog.txt')

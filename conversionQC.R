@@ -7,11 +7,11 @@ library(tictoc)
 
 args <- commandArgs(trailingOnly=TRUE)
 
-infile <- args[1]
-outfile <- args[2]
-numCPU <- args[3]
-exclusionString <- args[4]
-exclusion <- args[5]
+infile <- as.character(args[1])
+outfile <- as.character(args[2])
+numCPU <- as.numeric(args[3])
+exclusionString <- as.character(args[4])
+exclusion <- as.logical(args[5])
 
 idxstats <- Rsamtools::idxstatsBam(infile)
 idxstats <- idxstats[grep(exclusionString,idxstats$seqnames,invert=as.logical(exclusion)),]
@@ -25,7 +25,7 @@ rsamtools_reads <- mclapply(1:nrow(idxstats), function(x) {
   parms <- ScanBamParam(tag=taglist,
                         what="pos",
                         which = GRanges(seqnames = idxstats[x,"seqnames"], ranges = IRanges(1,idxstats[x,"seqlength"])))
-  dat <- scanBam(file = featfile, param = parms)
+  dat <- scanBam(file = infile, param = parms)
   dt <- data.table(RG = dat[[1]]$tag$BC, UB = dat[[1]]$tag$UB, SC = dat[[1]]$tag$SC, TC = dat[[1]]$tag$TC)
   return(dt)
 }, mc.cores = numCPU)

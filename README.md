@@ -20,8 +20,6 @@ NASC-seq:
 In addition to the produced datafiles, logfiles of both executed commands and warning messages/error messages are automatically saved to the experiment directory.
 Please note that some of the zUMIs settings (such as num_threads and num_memory) are used in NASCseqV3.py. If you want to use less resources, you will have to change these settings there. 
 
-To run the separate parts of the pipeline, you can either modify the NASC-stage flag in the yaml file, or call on the individual scripts directly by using the information below.
-
 ### Dependencies
 
 #### Python:
@@ -106,3 +104,4 @@ estim_pc.py [-h] [-h5 input] [-t threads]
   -h5 input, --hdf5 input .h5 file to process
   -t threads, --threads threads Number of threads
 ```
+To run the separate parts of the pipeline, you can either modify the NASC-stage flag in the yaml file, or call on the individual scripts directly by using the information below.

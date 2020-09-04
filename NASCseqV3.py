@@ -59,13 +59,15 @@ def sort_bam(infile,outfile,numCPU,mem_limit,commandlogfile,verbose):
 
 def check_logfile(logfile,patterns = ['Error','error']):
 	with open(logfile) as file:
-    contents = file.read()
-	x = 0
-	for(pattern in patterns):
-    	if pattern in contents:
-        	x+=1
-	if x>0:
-		print('Errors have been detected... please check your logfile here: %s' % logfile)
+    	contents = file.read()
+		x = 0
+		for(pattern in patterns):
+    		if pattern in contents:
+        		x+=1
+		if x>0:
+			print('Errors have been detected... please check your logfile here: %s' % logfile)
+		else:
+			print('No errors were detected... You can check your logfile here: %s' %logfile)
 
 ## Prepare directories and files
 safe_mkdir(os.path.join(experimentdir,'NASC-seq'))

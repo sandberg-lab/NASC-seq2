@@ -61,7 +61,7 @@ def check_logfile(logfile,patterns = ['Error','error']):
 	with open(logfile) as file:
 		contents = file.read()
 		x = 0
-		for(pattern in patterns):
+		for pattern in patterns:
 			if pattern in contents:
 				x+=1
 		if x>0:

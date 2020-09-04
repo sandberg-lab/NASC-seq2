@@ -126,7 +126,7 @@ if NASCflag=='estim_pc' or NASCflag=='all':
 	print('Finished estimating pc and pe for each cell')
 
 if NASCflag=='hyptest' or NASCflag=='all':
-	infile = os.path.join(experimentdir,,'NASC-seq'yamldata['project']+'.moleculeInformation.h5')
+	infile = os.path.join(experimentdir,'NASC-seq'yamldata['project']+'.moleculeInformation.h5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','hyptestlog.txt')
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'do_htest.py'),'-h5',infile,'-t',str(numCPU),'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
 	check_logfile(logfile)

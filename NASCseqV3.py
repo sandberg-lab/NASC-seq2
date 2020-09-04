@@ -12,6 +12,8 @@ import yaml
 ### Cleanup of temporary files
 ### Reporting structure to the user and logging
 ### Error handling confirmation
+### Move h5 file to NASC-seq folder for cleaner root?
+###		Same for bam files produced in NASC-seq process?
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
@@ -108,21 +110,21 @@ if NASCflag=='qc' or NASCflag=='all':
 
 if NASCflag=='extract' or NASCflag=='all':
 	infile = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.sorted.bam')
-	outfile = os.path.join(experimentdir,yamldata['project']+'.moleculeInformation.h5')
+	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.moleculeInformation.h5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','extractlog.txt')
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'extract_tags.py'),'-i',infile,'-o',outfile,'-g',gtf,'-t',str(numCPU),'>',logfile , '2>&1'],commandlogfile,verbose=verbose)
 	check_logfile(logfile)
 	print('Finished extracting information from bam file and creating h5 file')
 
 if NASCflag=='estim_pc' or NASCflag=='all':
-	infile = os.path.join(experimentdir,yamldata['project']+'.moleculeInformation.h5')
+	infile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.moleculeInformation.h5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','estimlog.txt')
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'estim_pc.py'),'-h5',infile,'-t',str(numCPU),'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
 	check_logfile(logfile)
 	print('Finished estimating pc and pe for each cell')
 
 if NASCflag=='hyptest' or NASCflag=='all':
-	infile = os.path.join(experimentdir,yamldata['project']+'.moleculeInformation.h5')
+	infile = os.path.join(experimentdir,,'NASC-seq'yamldata['project']+'.moleculeInformation.h5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','hyptestlog.txt')
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'do_htest.py'),'-h5',infile,'-t',str(numCPU),'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
 	check_logfile(logfile)

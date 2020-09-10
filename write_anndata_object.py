@@ -11,7 +11,7 @@ if __name__ == '__main__':
     parser.add_argument('-ann', '--anndata', metavar='output', type=str, help='anndata file to write')
     args = parser.parse_args()
     h5file = args.hdf5
-    anndata_file = parser.anndata
+    anndata_file = args.anndata
     h5file = h5py.File(h5file, 'r')
     print('Parsing hdf5 file: {}'.format(h5file))
     all_dicts = {'total': {}, 'new': {}, 'old': {}, 'spliced': {}, 'unspliced': {}}

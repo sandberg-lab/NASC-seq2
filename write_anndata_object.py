@@ -8,7 +8,7 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract molecule information and store in an hdf5 file')
     parser.add_argument('-h5','--hdf5',metavar='input', type=str, help='.h5 file to parse')
-    parser.add_argument('-ann', '--anndata', metavar='output', type=int, default=1, help='anndata file to write')
+    parser.add_argument('-ann', '--anndata', metavar='output', type=str, help='anndata file to write')
     args = parser.parse_args()
     h5file = args.hdf5
     anndata_file = parser.anndata

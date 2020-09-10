@@ -121,9 +121,9 @@ def make_write_function(h5file):
             del cell_d
             q.task_done()
         hdf5_file = h5py.File(h5file, 'a')
-        grp = hdf5_file.create_group('cells')
+        grp = hdf5_file.require_group('cells')
         for cell, d in full_cell_dict.items():
-            cell_grp = grp.create_group(cell)
+            cell_grp = grp.require_group(cell)
             for tag, value in d.items():
                 if tag == 'gene':
                     cell_grp.create_dataset(tag, data=np.array(value, dtype='S'))
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     print('Done, writing results')
     fd = h5py.File(h5file,'a')
     for cell_id, cell_grp in fd['cells'].items():
-        cell_grp.attrs['p_c'] = res_dict['p_c']
-        cell_grp.attrs['p_e'] = res_dict['p_e']
+        cell_grp.attrs['p_c'] = res_dict[cell_id][0]
+        cell_grp.attrs['p_e'] = res_dict[cell_id][1]
     fd.close()
 

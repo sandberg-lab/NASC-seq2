@@ -151,7 +151,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract molecule information and store in an hdf5 file')
     parser.add_argument('-h5','--hdf5',metavar='input', type=str, help='.h5 file to process')
     parser.add_argument('-t', '--threads', metavar='threads', type=int, default=1, help='Number of threads')
-    parser.add_argument('--skip_copy',action='store_true')
+    parser.add_argument('--skip-copy',action='store_true')
     args = parser.parse_args()
     h5file = args.hdf5
     threads = args.threads

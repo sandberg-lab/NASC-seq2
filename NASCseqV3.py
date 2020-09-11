@@ -13,7 +13,8 @@ import yaml
 ### Reporting structure to the user and logging
 ### Error handling confirmation
 ### Move h5 file to NASC-seq folder for cleaner root?
-###		Same for bam files produced in NASC-seq process?
+### Same for bam files produced in NASC-seq process?
+### QC plots for molecule coverage vs read coverage??? Mainly would serve as QC for stitcher, but useful for seq depth determination...
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()

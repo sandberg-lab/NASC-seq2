@@ -12,6 +12,7 @@ import yaml
 ### Cleanup of temporary files
 ### Reporting structure to the user and logging
 ### Error handling confirmation
+### h5 already exists at start of 'extract' run warning message and break?
 ### Move h5 file to NASC-seq folder for cleaner root?
 ### Same for bam files produced in NASC-seq process?
 ### QC plots for molecule coverage vs read coverage??? Mainly would serve as QC for stitcher, but useful for seq depth determination...

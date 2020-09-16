@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 ## GJH
 
-import os, argparse, sys, subprocess, time, glob, ntpath, shutil
+import os, argparse, sys, subprocess, time, glob, ntpath, shutil, os.path
 from joblib import Parallel, delayed
 import pandas as pd
 import yaml
@@ -10,12 +10,10 @@ import yaml
 
 ### File handling when files already exist?
 ### Cleanup of temporary files
-### Reporting structure to the user and logging
 ### Error handling confirmation
-### h5 already exists at start of 'extract' run warning message and break?
-### Move h5 file to NASC-seq folder for cleaner root?
-### Same for bam files produced in NASC-seq process?
 ### QC plots for molecule coverage vs read coverage??? Mainly would serve as QC for stitcher, but useful for seq depth determination...
+### Commandlog needs timestamps to clarify history...
+
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
@@ -73,35 +71,42 @@ def check_logfile(logfile,patterns = ['Error','error']):
 
 ## Prepare directories and files
 safe_mkdir(os.path.join(experimentdir,'NASC-seq'))
+safe_mkdir(os.path.join(experimentdir,'stitched'))
+safe_mkdir(os.path.join(experimentdir,'stitched','logfiles'))
 safe_mkdir(os.path.join(experimentdir,'NASC-seq','logfiles'))
 commandlogfile=open(os.path.join(experimentdir,'NASC-seq','logfiles','commandlog.txt'), 'a')
 
 ## Processing
 if NASCflag=='stitcher' or NASCflag=='all':
+	print('I am now stitching together all UMI-containing reads.\n')
+	print('If this is used in a publication, please cite Hagemann-Jensen et. al. 2020, Nature Biotechnology')
+	print('\n')
 	infile = os.path.join(experimentdir,yamldata['project']+'.filtered.Aligned.GeneTagged.UBcorrected.sorted.bam')
 	run_cmd(['samtools index',infile,'-@',str(numCPU)],commandlogfile,verbose=verbose)
-	outfile = os.path.join(experimentdir,yamldata['project']+'.stitched.bam')
-	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','stitcherlog.txt')
+	outfile = os.path.join(experimentdir,'stitched',yamldata['project']+'.stitched.bam')
+	logfile = os.path.join(experimentdir,'stitched','logfiles','stitcherlog.txt')
 	indexfile = yamldata['barcodes']['barcode_file']
 	run_cmd(['nohup',python_exec,stitcher_exec,'--input',infile,'--o',outfile,'--g',gtf,'--iso',isoform,'--t',str(numCPU),'--cells',indexfile,'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
 	check_logfile(logfile)
-	outfileSorted = os.path.join(experimentdir,yamldata['project']+'.stitched.sorted.bam')
+	outfileSorted = os.path.join(experimentdir,'stitched',yamldata['project']+'.stitched.sorted.bam')
 	sort_bam(outfile,outfileSorted,str(numCPU),mem_limit,commandlogfile,verbose)
 	print('Finished stitching reads')
 
 if NASCflag=='tag' or NASCflag=='all':
-	infile = os.path.join(experimentdir,yamldata['project']+'.stitched.sorted.bam')
-	outfile = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.bam')
+	print('I am now tagging conversions in all stitched molecules.')
+	infile = os.path.join(experimentdir,'stitched',yamldata['project']+'.stitched.sorted.bam')
+	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.stitched.tagged.bam')
 	mutfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.mutationfile.hdf5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','taglog.txt')
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'tag_molecules.py'),'-i',infile,'-o',outfile,'-g',gtf,'-f',fasta,'-mut',mutfile,'-t',str(numCPU),'>', logfile, '2>&1'],commandlogfile,verbose=verbose)
 	check_logfile(logfile)
-	outfileSorted = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.sorted.bam')
+	outfileSorted = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.stitched.tagged.sorted.bam')
 	sort_bam(outfile,outfileSorted,numCPU,mem_limit,commandlogfile,verbose)
 	print('Finished tagging conversions')
 
 if NASCflag=='qc' or NASCflag=='all':
-	infile = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.sorted.bam')
+	print('I am now calculating the conversion rates for each possible conversion type.')
+	infile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.stitched.tagged.sorted.bam')
 	outfileSpike = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.conversionRates.diySpike.rds')
 	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.conversionRates.rds')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','convratelog.txt')
@@ -113,14 +118,19 @@ if NASCflag=='qc' or NASCflag=='all':
 	print('Finished conversion rate QC')
 
 if NASCflag=='extract' or NASCflag=='all':
-	infile = os.path.join(experimentdir,yamldata['project']+'.stitched.tagged.sorted.bam')
+	print('I am now extracting all required information from the tagged and stitched bam file and preparing the h5 file.')
+	infile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.stitched.tagged.sorted.bam')
 	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.moleculeInformation.h5')
-	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','extractlog.txt')
-	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'extract_tags.py'),'-i',infile,'-o',outfile,'-g',gtf,'-t',str(numCPU),'>',logfile , '2>&1'],commandlogfile,verbose=verbose)
-	check_logfile(logfile)
-	print('Finished extracting information from bam file and creating h5 file')
+	if path.extists(outfile):
+		print('h5 file already exists. Please delete this file if you want to extract molecule information to a new h5 file...')
+	else:
+		logfile = os.path.join(experimentdir,'NASC-seq','logfiles','extractlog.txt')
+		run_cmd(['nohup',python_exec,os.path.join(scriptpath,'extract_tags.py'),'-i',infile,'-o',outfile,'-g',gtf,'-t',str(numCPU),'>',logfile , '2>&1'],commandlogfile,verbose=verbose)
+		check_logfile(logfile)
+		print('Finished extracting information from bam file and creating h5 file')
 
 if NASCflag=='estim_pc' or NASCflag=='all':
+	print('I am now estimating the probability of conversion and the probability of error for each cell.')
 	infile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.moleculeInformation.h5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','estimlog.txt')
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'estim_pc.py'),'-h5',infile,'-t',str(numCPU),'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
@@ -128,6 +138,7 @@ if NASCflag=='estim_pc' or NASCflag=='all':
 	print('Finished estimating pc and pe for each cell')
 
 if NASCflag=='hyptest' or NASCflag=='all':
+	print('I am now testing each molecule against the hypothesis that it is new.')
 	infile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.moleculeInformation.h5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','hyptestlog.txt')
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'do_htest.py'),'-h5',infile,'-t',str(numCPU),'>',logfile,'2>&1'],commandlogfile,verbose=verbose)

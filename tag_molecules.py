@@ -75,10 +75,7 @@ def get_allele(mol, mut_trie, comparison_dict, strand):
     ref_count = 0
     alt_count = 0
     for p in mut_trie[mol].keys():
-            try:def chunks(lst, n):
-    """Yield successive n-sized chunks from lst."""
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+            try:
                 comparison_dict[p]
             except KeyError:
                 continue

@@ -45,7 +45,7 @@ def safe_mkdir(f):
 		os.mkdir(f)
 		
 def run_cmd(cmd,commandlogfile,verbose):
-	commandlogfile.write(str(datetime.datetime.now())+'\n')
+    commandlogfile.write(str(datetime.datetime.now())+'\n')
     commandlogfile.write('%s\n' % " ".join(cmd))
     if str(verbose)=='False':
         subprocess.call(" ".join(cmd),shell=True)

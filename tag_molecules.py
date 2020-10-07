@@ -18,12 +18,19 @@ from multiprocessing import Process, Manager
 import h5py
 import time
 
+# taken from https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
 def intervals_extract(iterable):
     iterable = sorted(set(iterable))
     for key, group in itertools.groupby(enumerate(iterable),
     lambda t: t[1] - t[0]):
         group = list(group)
         yield [group[0][1], group[-1][1]]
+        
 def compare(read_seq, ref_seq, is_reverse, start):
     specific_conversions = {}
     total_content = {'a' : ref_seq.count('A'), 'c' : ref_seq.count('C'), 'g' : ref_seq.count('G'), 't' : ref_seq.count('T')}
@@ -68,7 +75,10 @@ def get_allele(mol, mut_trie, comparison_dict, strand):
     ref_count = 0
     alt_count = 0
     for p in mut_trie[mol].keys():
-            try:
+            try:def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
                 comparison_dict[p]
             except KeyError:
                 continue
@@ -233,7 +243,12 @@ def count_conversions(bfile,fasta_file,vcf_file,g_dict,q):
             mol.set_tag('CL',conv_trie[mol.query_name][0])
         content_dict = {'mol_string': mol.to_string()}
         append_content(content_dict)
-    q.put((True,content_list))
+    # chunking to avoid trying to send too much data
+    if len(content_list) > 10000:
+        for c_list in chunks(content_list, 10000):
+            q.put((True,c_list))
+    else:
+        q.put((True,content_list))
     bam.close() 
     if sig_df.empty:
         return g_dict['gene_id']

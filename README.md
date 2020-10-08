@@ -15,7 +15,7 @@ NASC-seq:
   fasta:  '~/resources/genomes/human/hg38.primary_assembly.sorted.fa' ## The fasta file corresponding to the genome used for alignment of the data.
   isoform: '~/programs/stitcher.py/hg38_unique_intervals_for_isoforms.json' ## .json file with isoform information.
   stitcher_exec: '~/programs/stitcher.py/stitcher.py' ## Location of stitcher.py
-  spikeID: 'diySpike'
+  spikeID: 'diySpike' ## Pattern identifying spike reads that are to be treated as such.
   
 ```
 In addition to the produced datafiles, logfiles of both executed commands and warning messages/error messages are automatically saved to the experiment directory.

@@ -120,7 +120,7 @@ if NASCflag=='extract' or NASCflag=='all':
 	print('I am now extracting all required information from the tagged and stitched bam file and preparing the h5 file.')
 	infile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.stitched.tagged.sorted.bam')
 	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.moleculeInformation.h5')
-	if path.extists(outfile):
+	if os.path.exists(outfile):
 		print('h5 file already exists. Please delete this file if you want to extract molecule information to a new h5 file...')
 	else:
 		logfile = os.path.join(experimentdir,'NASC-seq','logfiles','extractlog.txt')

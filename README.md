@@ -15,7 +15,8 @@ NASC-seq:
   fasta:  '~/resources/genomes/human/hg38.primary_assembly.sorted.fa' ## The fasta file corresponding to the genome used for alignment of the data.
   isoform: '~/programs/stitcher.py/hg38_unique_intervals_for_isoforms.json' ## .json file with isoform information.
   stitcher_exec: '~/programs/stitcher.py/stitcher.py' ## Location of stitcher.py
-
+  spikeID: 'diySpike'
+  
 ```
 In addition to the produced datafiles, logfiles of both executed commands and warning messages/error messages are automatically saved to the experiment directory.
 Please note that some of the zUMIs settings (such as num_threads and num_memory) are used in NASCseqV3.py. If you want to use less resources, you will have to change these settings there. 

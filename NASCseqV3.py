@@ -146,4 +146,15 @@ if NASCflag=='hyptest' or NASCflag=='all':
 	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'do_htest.py'),'-h5',infile,'-t',str(numCPU),'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
 	check_logfile(logfile)
 	print('Finished hypothesis testing')
+
+
+if NASCflag=='annData' or NASCflag=='all':
+	print('I am now building the annotated data object.')
+	infile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.moleculeInformation.h5')
+	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.annotatedData.h5ad')
+	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','anndatalog.txt')
+	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'write_anndata_object.py'),'-h5',infile,'ann',outfile,'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
+	check_logfile(logfile)
+	print('Finished writing annotated data object to file')
 	print('All done!')
+	

@@ -12,6 +12,9 @@ import yaml
 ### Cleanup of temporary files
 ### Error handling confirmation
 ### QC plots for molecule coverage vs read coverage??? Mainly would serve as QC for stitcher, but useful for seq depth determination...
+### Add Annotated Data building function
+### Check for all required packages etc...
+###
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
@@ -43,7 +46,7 @@ R_exec = yamldata['Rscript_exec']
 def safe_mkdir(f):
 	if not os.path.exists(f):
 		os.mkdir(f)
-		
+
 def run_cmd(cmd,commandlogfile,verbose):
     commandlogfile.write(str(datetime.datetime.now())+'\n')
     commandlogfile.write('%s\n' % " ".join(cmd))

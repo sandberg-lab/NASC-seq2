@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from scipy import sparse
 import tensorflow as tf
+tf.enable_eager_execution()
 import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract molecule information and store in an hdf5 file')

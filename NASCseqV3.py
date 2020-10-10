@@ -5,6 +5,7 @@ import os, argparse, sys, subprocess, time, glob, ntpath, shutil, os.path, datet
 from joblib import Parallel, delayed
 import pandas as pd
 import yaml
+from subprocess import Popen, PIPE
 
 ## 3.9.20 TODO :
 
@@ -12,7 +13,6 @@ import yaml
 ### Cleanup of temporary files
 ### Error handling confirmation
 ### QC plots for molecule coverage vs read coverage??? Mainly would serve as QC for stitcher, but useful for seq depth determination...
-### Add Annotated Data building function
 ### Check for all required packages etc...
 ###
 
@@ -20,6 +20,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-y','--yamlfile',required=True)
 	o = parser.parse_args()
+
 
 ## yaml file handling and extraction
 with open(o.yamlfile, 'r') as stream:
@@ -43,6 +44,13 @@ NASCflag = yamldata['NASC-seq']['NASC-stage']
 python_exec = 'python3' ## Should probably be changed to yaml option...
 R_exec = yamldata['Rscript_exec']
 ## File and folder handling functions
+
+def check_versions(package,versionYaml):
+	p = Popen([python_exec,os.path.join(scriptpath,'versionCtrl.py'),'-p',package,'-y',versionYaml], stdin=PIPE,stdout=PIPE,stderr=PIPE)
+	output, err = p.communicate()
+	out = str(output).replace("b'","").replace("'","").replace('\\n','')
+	return(out)
+
 def safe_mkdir(f):
 	if not os.path.exists(f):
 		os.mkdir(f)
@@ -121,8 +129,10 @@ if NASCflag=='qc' or NASCflag=='all':
 
 if NASCflag=='extract' or NASCflag=='all':
 	print('I am now extracting all required information from the tagged and stitched bam file and preparing the h5 file.')
+	print(check_versions('h5py',os.path.join(scriptpath,'versionCtrl.yaml')))
 	infile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.stitched.tagged.sorted.bam')
 	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.moleculeInformation.h5')
+
 	if os.path.exists(outfile):
 		print('h5 file already exists. Please delete this file if you want to extract molecule information to a new h5 file...')
 	else:
@@ -153,8 +163,7 @@ if NASCflag=='annData' or NASCflag=='all':
 	infile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.moleculeInformation.h5')
 	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.annotatedData.h5ad')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','anndatalog.txt')
-	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'write_anndata_object.py'),'-h5',infile,'ann',outfile,'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
+	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'write_anndata_object.py'),'-h5',infile,'-ann',outfile,'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
 	check_logfile(logfile)
 	print('Finished writing annotated data object to file')
 	print('All done!')
-	

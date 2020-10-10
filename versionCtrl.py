@@ -16,10 +16,20 @@ if __name__ == "__main__":
             print(exc)
 
     allowedVersions = yamldata[o.package].split(',')
-
+    maxVersion = allowedVersions[len(allowedVersions)-1]
     version = importlib.import_module(o.package).__version__
+
+    subversions = version.split(".")
+    newerVersion = True
+    for i in range(0,len(subversions)):
+        if int(subversions[i]) >= int(maxVersion.split(".")[i]) and newerVersion==True:
+            newerVersion = True
+        else:
+            newerVersion = False
 
     if version in allowedVersions:
         print('Package %s version %s is compatible.' % (o.package,version))
+    elif newerVersion == True:
+        print('Package %s version %s seems to be newer than the latest confirmed version number %s. It may or may not work. Good luck!' % (o.package,version,maxVersion))
     else:
-        print('Warning: package %s version %s is not found in the list of confirmed compatible versions. The highest version number that was confirmed to work is %s.' % (o.package,version,allowedVersions[len(allowedVersions)-1]))
+        print('Warning: package %s version %s does not seem to be compatible. Please upgrade to version %s or higher.' % (o.package,version,maxVersion))

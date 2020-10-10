@@ -159,6 +159,7 @@ if NASCflag=='hyptest' or NASCflag=='all':
 
 
 if NASCflag=='annData' or NASCflag=='all':
+	print(check_versions('tensorflow',os.path.join(scriptpath,'versionCtrl.yaml')))
 	print('I am now building the annotated data object.')
 	infile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.moleculeInformation.h5')
 	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.annotatedData.h5ad')

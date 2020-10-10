@@ -17,6 +17,7 @@ if __name__ == "__main__":
 
     allowedVersions = yamldata[o.package].split(',')
     maxVersion = allowedVersions[len(allowedVersions)-1]
+    minVersion = allowedVersions[0]
     version = importlib.import_module(o.package).__version__
 
     subversions = version.split(".")

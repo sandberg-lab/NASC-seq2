@@ -33,4 +33,4 @@ if __name__ == "__main__":
     elif newerVersion == True:
         print('Package %s version %s seems to be newer than the latest confirmed version number %s. It may or may not work. Good luck!' % (o.package,version,maxVersion))
     else:
-        print('Warning: package %s version %s does not seem to be compatible. Please upgrade to version %s or higher.' % (o.package,version,maxVersion))
+        print('Warning: package %s version %s does not seem to be compatible. Please upgrade to version %s or higher.' % (o.package,version,minVersion))

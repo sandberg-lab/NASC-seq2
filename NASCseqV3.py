@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 ## GJH
 
-import os, argparse, sys, subprocess, time, glob, ntpath, shutil, os.path, datetime
-from joblib import Parallel, delayed
-import pandas as pd
+import os, argparse, subprocess, os.path, datetime
 import yaml
 from subprocess import Popen, PIPE
 

@@ -6,9 +6,10 @@ import multiprocessing as mp
 from joblib import Parallel, delayed
 from time import time
 
+
 def add_umi_tags(infile, outfile, threads):
-    bam_in = pysam.AlignmentFile(infile, 'rb', threads = threads / 2)
-    bam_out = pysam.AlignmentFile(outfile, 'wb', template = bam_in, threads = threads / 2)
+    bam_in = pysam.AlignmentFile(infile, 'rb', threads=int(threads / 2))
+    bam_out = pysam.AlignmentFile(outfile, 'wb', template=bam_in,threads=int(threads / 2))
     condition_gene_dict = {}
     for read in bam_in.fetch():
         # Do we need a try statement here? What about phi-X reads?

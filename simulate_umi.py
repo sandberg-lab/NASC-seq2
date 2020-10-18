@@ -13,7 +13,10 @@ def add_umi_tags(infile, outfile, threads):
     condition_gene_dict = {}
     for read in bam_in.fetch():
         # Do we need a try statement here? What about phi-X reads?
-        condition = read.get_tag('BC')
+        try:
+            condition = read.get_tag('BC')
+        except KeyError:
+            continue
         try:
             gene = read.get_tag('GE')
         except KeyError:

@@ -100,6 +100,19 @@ if NASCflag=='stitcher' or NASCflag=='all':
 	sort_bam(outfile,outfileSorted,str(numCPU),mem_limit,commandlogfile,verbose)
 	print('Finished stitching reads')
 
+if NASCflag=='simulateUMI':
+	print('I am now adding simulated UMIs to make non-UMI data compatible with the NASC-seq2 pipeline...')
+	print('\n')
+	infile = os.path.join(experimentdir,yamldata['project']+'.filtered.Aligned.GeneTagged.sorted.bam')
+	outfile = os.path.join(experimentdir,'stitched',yamldata['project']+'.stitched.sorted.bam')
+	logfile = os.path.join(experimentdir,'stitched','logfiles','simulatingUMIs.txt')
+	cmd = ['nohup',python_exec,os.path.join(scriptpath,'simulate_umi.py'),'-i',infile,'-o',outfile,'-p',str(numCPU),'>',logfile,'2>&1']
+	run_cmd(cmd=cmd, commandlogfile=commandlogfile, verbose=verbose)
+	check_logfile(logfile)
+	outfileSorted = os.path.join(experimentdir,'stitched',yamldata['project']+'.stitched.sorted.bam')
+	sort_bam(outfile,outfileSorted,str(numCPU),mem_limit,commandlogfile,verbose)
+	print('Finished sorting simulated UMI reads')
+
 if NASCflag=='tag' or NASCflag=='all':
 	print('I am now tagging conversions in all stitched molecules.')
 	infile = os.path.join(experimentdir,'stitched',yamldata['project']+'.stitched.sorted.bam')

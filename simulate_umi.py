@@ -30,6 +30,7 @@ def add_umi_tags(infile, outfile, threads):
                 condition_gene_dict.update({condition:{gene:1}})
         umi = condition_gene_dict[condition][gene]
         read.set_tag('UB', value = str(umi), value_type = 'Z')
+        read.set_tag('XT', value = str(gene), value_type = 'Z')
         bam_out.write(read)
 
 if __name__ == "__main__":

@@ -188,7 +188,7 @@ if __name__ == '__main__':
     q = m.JoinableQueue()
     p = Process(target=create_h5_function(h5outfile=filename_h5), args=(q,))
     p.start()
-    params = Parallel(n_jobs=threads, verbose = 3, backend='loky')(delayed(get_tags)(filename_bam, g_dict,q) for g,g_dict in gene_dict.items())
+    params = Parallel(n_jobs=threads, verbose = 3, backend='multiprocessing')(delayed(get_tags)(filename_bam, g_dict,q) for g,g_dict in gene_dict.items())
     q.put((None,None))
     p.join()
     end = time.time()

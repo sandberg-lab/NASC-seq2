@@ -37,6 +37,13 @@ if __name__ == '__main__':
     all_dfs = {}
     for k, d in all_dicts.items():
         all_dfs[k] = pd.DataFrame(d).fillna(0)
+    pc_dict = {}
+    pe_dict = {}
+    for cell, cell_grp in hf5file['cells'].items():
+        pc_dict[cell] = cell_grp.attrs['p_c']
+        pe_dict[cell] = cell_grp.attrs['p_e']
+    pe_series = pd.Series(pe_dict).reindex(all_dfs['total'].index)
+    pc_series = pd.Series(pc_dict).reindex(all_dfs['total'].index)
     X = all_dfs['total'].values
     X = sparse.csr_matrix(X)
     ad = anndata.AnnData(X)
@@ -46,6 +53,7 @@ if __name__ == '__main__':
         if k == 'total':
             continue
         ad.layers[k] = sparse.csr_matrix(df.values)
-
+    ad.obs['p_c'] = pc_series
+    ad.obs['p_e'] = pe_series
     print('Writing to anndata file: '.format(anndata_file))
     ad.write(anndata_file)

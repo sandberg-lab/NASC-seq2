@@ -14,6 +14,7 @@ NASC-seq:
   vcf: 'vcfFilePath.vcf' ## Optional, add in vcf file to be used for allele assignment
   fasta:  '~/resources/genomes/human/hg38.primary_assembly.sorted.fa' ## The fasta file corresponding to the genome used for alignment of the data.
   isoform: '~/programs/stitcher.py/hg38_unique_intervals_for_isoforms.json' ## .json file with isoform information.
+  junction: '~/programs/stitcher.py/hg38_unique_refskip_for_isoforms.json' ## .json file with junction information.
   stitcher_exec: '~/programs/stitcher.py/stitcher.py' ## Location of stitcher.py
   spikeID: 'diySpike' ## Pattern identifying spike reads that are to be treated as such.
   

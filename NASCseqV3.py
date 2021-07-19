@@ -91,7 +91,7 @@ if NASCflag=='stitcher' or NASCflag=='all':
 	print('If this is used in a publication, please cite Hagemann-Jensen et. al. 2020, Nature Biotechnology')
 	print('\n')
 	infile = os.path.join(experimentdir,yamldata['project']+'.filtered.Aligned.GeneTagged.UBcorrected.sorted.bam')
-	run_cmd(['samtools index',infile,'-@',str(numCPU)],commandlogfile,verbose=verbose)
+	#run_cmd(['samtools index',infile,'-@',str(numCPU)],commandlogfile,verbose=verbose)
 	outfile = os.path.join(experimentdir,'stitched',yamldata['project']+'.stitched.bam')
 	logfile = os.path.join(experimentdir,'stitched','logfiles','stitcherlog.txt')
 	indexfile = yamldata['barcodes']['barcode_file']

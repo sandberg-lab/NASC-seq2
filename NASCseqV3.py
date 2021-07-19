@@ -39,6 +39,7 @@ vcf = yamldata['NASC-seq']['vcf']
 isoform = yamldata['NASC-seq']['isoform']
 stitcher_exec = yamldata['NASC-seq']['stitcher_exec']
 NASCflag = yamldata['NASC-seq']['NASC-stage']
+junction = yamldata['NASC-seq']['junction']
 python_exec = 'python3' ## Should probably be changed to yaml option...
 R_exec = yamldata['Rscript_exec']
 ## File and folder handling functions
@@ -94,7 +95,7 @@ if NASCflag=='stitcher' or NASCflag=='all':
 	outfile = os.path.join(experimentdir,'stitched',yamldata['project']+'.stitched.bam')
 	logfile = os.path.join(experimentdir,'stitched','logfiles','stitcherlog.txt')
 	indexfile = yamldata['barcodes']['barcode_file']
-	run_cmd(['nohup',python_exec,stitcher_exec,'--input',infile,'--o',outfile,'--g',gtf,'--iso',isoform,'--t',str(numCPU),'--cells',indexfile,'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
+	run_cmd(['nohup',python_exec,stitcher_exec,'--input',infile,'--o',outfile,'--g',gtf,'--iso',isoform ,'--jun',junction,'--t',str(numCPU),'--cells',indexfile,'>',logfile,'2>&1'],commandlogfile,verbose=verbose)
 	check_logfile(logfile)
 	outfileSorted = os.path.join(experimentdir,'stitched',yamldata['project']+'.stitched.sorted.bam')
 	sort_bam(outfile,outfileSorted,str(numCPU),mem_limit,commandlogfile,verbose)

@@ -253,8 +253,8 @@ def count_conversions(bfile, fasta_file, vcf_file, g_dict,q):
         content_dict = {'mol_string': mol.to_string()}
         append_content(content_dict)
     # chunking to avoid trying to send too much data
-    if len(content_list) > 10000:
-        for c_list in chunks(content_list, 10000):
+    if len(content_list) > 100000:
+        for c_list in chunks(content_list, 100000):
             q.put((True, c_list))
     else:
         q.put((True, content_list))

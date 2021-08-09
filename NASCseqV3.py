@@ -120,7 +120,7 @@ if NASCflag=='tag' or NASCflag=='all':
 	outfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.stitched.tagged.bam')
 	mutfile = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.mutationfile.hdf5')
 	logfile = os.path.join(experimentdir,'NASC-seq','logfiles','taglog.txt')
-	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'tag_molecules.py'),'-i',infile,'-o',outfile,'-g',gtf,'-f',fasta,'-mut',mutfile,'-t',str(numCPU),'>', logfile, '2>&1'],commandlogfile,verbose=verbose)
+	run_cmd(['nohup',python_exec,os.path.join(scriptpath,'tag_molecules.py'),'-i',infile,'-o',outfile,'-g',gtf,'-f',fasta,'-mut',mutfile, '-v', vcf,'-t',str(numCPU),'>', logfile, '2>&1'],commandlogfile,verbose=verbose)
 	check_logfile(logfile)
 	outfileSorted = os.path.join(experimentdir,'NASC-seq',yamldata['project']+'.stitched.tagged.sorted.bam')
 	sort_bam(outfile,outfileSorted,numCPU,mem_limit,commandlogfile,verbose)

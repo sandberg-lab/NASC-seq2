@@ -184,7 +184,7 @@ def get_tries(bam, fasta_file, g_dict):
     return read_trie,mut_trie,conv_trie,t_trie, s_trie,strand
 
 
-def find_mutations(conv_trie, mut_trie, g_dict, vcf_reader):
+def find_mutations(conv_trie, mut_trie, g_dict, vcf_file):
     locs_list = []
     intervals_list = []
     for cell, convs in sorted(conv_trie.items()):

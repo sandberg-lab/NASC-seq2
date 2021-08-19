@@ -184,22 +184,28 @@ def get_tries(bam, fasta_file, g_dict):
     return read_trie,mut_trie,conv_trie,t_trie, s_trie,strand
 
 
-def find_mutations(conv_trie, mut_trie, g_dict, vcf_file):
+def find_mutations(conv_trie, mut_trie, g_dict, vcf_file, n_cells_top):
     locs_list = []
     intervals_list = []
-    for cell, convs in sorted(conv_trie.items()):
+    conversions_counter = Counter()
+    coverage_counter = Counter()
+    cell_dict = {}
+    for tag, convs in sorted(conv_trie.items()):
         if len(convs[0]) > 0:
-            s = pd.Series(np.repeat(True, len(convs[0])), index=convs[0])
-            s.name = cell
-            locs_list.append(s)
-        intervals_list.append(P.from_data([[True, p[0], p[1], True] for p in convs[1]]))
+            conversions_counter.update({p:1 for p in convs[0]})
+            c = tag.partition(':')[0]
+            for p in convs[0]:
+                if p in cell_dict:
+                    cell_dict[p] = cell_dict[p].union(set([c]))
+                else:
+                    cell_dict[p] = set([c])
+        coverage_counter.update({p:1 for p in P.iterate(P.from_data([[True, p[0], p[1], True] for p in convs[1]]))})
 
-    locs_df = pd.DataFrame(locs_list).fillna(False)
-    pos_coverage = locs_df.columns.map(lambda x: get_coverage(int(x), intervals_list))
-    cov_series = pd.Series(pos_coverage.values, index=locs_df.columns)
+    cell_count_dict = {p:len(c_set) for p, c_set in cell_dict}
 
-    stats_df = pd.DataFrame([locs_df.sum(), cov_series, (locs_df.sum()/cov_series),locs_df.apply(get_num_cells)]).T
-    stats_df.columns = ['conversions', 'coverage', 'fraction', 'num_cells']
+    stats_df = pd.DataFrame([conversions_counter, coverage_counter, cell_count_dict])
+    stats_df.columns = ['conversions', 'coverage', 'num_cells']
+    stats_df['fraction'] = stats_df['conversions']/stats_df['coverage']
 
     if stats_df.empty:
         return False, None, None
@@ -216,10 +222,14 @@ def find_mutations(conv_trie, mut_trie, g_dict, vcf_file):
         frac_ref = stats_df.apply(lambda row: np.array(list(get_alleles(locs_df.index[locs_df[row.name]].values,mut_trie,comparison_dict,g_dict['strand']))), axis=1).apply(lambda x: np.mean(x[~np.isnan(x)]) if np.mean(np.isnan(x)) != 1 else np.nan)
         frac_ref.name = 'frac_ref'
         stats_df = stats_df.join(frac_ref)
-        sig_df = stats_df[(stats_df['num_cells'] > 4).mul((stats_df['frac_ref'] - 0.5).abs() > 0.3).mul(stats_df['pval'] < 0.05/stats_df.shape[0])].sort_values('pval')
+        sig_df = stats_df[(stats_df['num_cells'] > 4).mul((stats_df['frac_ref'] - 0.5).abs() > 0.3).mul(stats_df['pval'] < 0.05/stats_df.shape[0])]
         sig_df['ref'] = sig_df['frac_ref'] > 0.5
-    sig_df = stats_df[(stats_df['num_cells'] > 4).mul(stats_df['pval'] < 0.05/stats_df.shape[0])].sort_values('pval')
-    sig_df['ref'] = True
+    else:
+        sig_df = stats_df[(stats_df['num_cells'] > 4).mul(stats_df['pval'] < 0.05/stats_df.shape[0])]
+        sig_df['ref'] = True
+    sig_df_2 = stats_df[(stats_df['num_cells'] > n_cells_top).mul(stats_df['pval'] < 0.05/stats_df.shape[0])]
+    sif_df_2['ref'] = True
+    sig_df = sig_df.append(sig_df_2)
     sig_df['pos'] = sig_df.index
     sig_df['chrom'] = g_dict['seqid']
     sig_df['gene'] = g_dict['gene_id']
@@ -227,10 +237,10 @@ def find_mutations(conv_trie, mut_trie, g_dict, vcf_file):
     return True, sig_df, mols_series
 
 
-def count_conversions(bfile, fasta_file, vcf_file, g_dict,q):
+def count_conversions(bfile, fasta_file, vcf_file, g_dict, n_cells_top, q):
     bam = pysam.AlignmentFile(bfile)
     read_trie, mut_trie, conv_trie, t_trie, s_trie, strand_trie = get_tries(bam,fasta_file,g_dict)
-    good, sig_df, mols_series = find_mutations(conv_trie, mut_trie, g_dict, vcf_file)
+    good, sig_df, mols_series = find_mutations(conv_trie, mut_trie, g_dict, vcf_file, n_cells_top)
     if not good:
         return g_dict['gene_id']
     for pos, mols in mols_series.items():
@@ -308,6 +318,7 @@ if __name__ == '__main__':
     parser.add_argument('-v','--vcf',type=str,default=None, help='vcf file with genotype information')
     parser.add_argument('-mut','--mutations',type=str, help='Output hdf5 file with mutation information')
     parser.add_argument('-t', '--threads', metavar='threads', type=int, default=1, help='Number of threads')
+    parser.add_argument('--cell_threshold', type=int, default=100, help='Number of cells with detected mismatch to mark as homozygous mutation/artifact')
     parser.add_argument('--contig', default=None, metavar='contig', type=str, help='Restrict stitching to contig')
     args = parser.parse_args()
 #    vcf_file = '/mnt/storage1/home/antonl/meta/vcf/CAST.SNPs.validated.vcf.gz'
@@ -323,6 +334,7 @@ if __name__ == '__main__':
 #    h5outfile = 'mESC_NASCseq_EXP-20-CB7751.h5'
     h5outfile = args.mutations
 
+    n_cells_top = args.cell_threshold
 #    contig = None
     contig = args.contig
     threads = int(args.threads)
@@ -351,7 +363,7 @@ if __name__ == '__main__':
     print('Counting conversions in molecules for {}'.format(bfile))
 
     start = time.time()
-    params = Parallel(n_jobs=threads, verbose = 3, backend='loky')(delayed(count_conversions)(bfile,fasta_file,vcf_file, gene,q) for g,gene in gene_df.iterrows())
+    params = Parallel(n_jobs=threads, verbose = 3, backend='loky')(delayed(count_conversions)(bfile,fasta_file,vcf_file, gene, n_cells_top, q) for g,gene in gene_df.iterrows())
     q.put((None,None))
     p.join()
     end = time.time()

@@ -203,7 +203,7 @@ def find_mutations(conv_trie, mut_trie, g_dict, vcf_file, n_cells_top):
 
     cell_count_dict = {p:len(c_set) for p, c_set in cell_dict}
 
-    stats_df = pd.DataFrame([conversions_counter, coverage_counter, cell_count_dict])
+    stats_df = pd.DataFrame([conversions_counter, coverage_counter, cell_count_dict]).T
     stats_df.columns = ['conversions', 'coverage', 'num_cells']
     stats_df['fraction'] = stats_df['conversions']/stats_df['coverage']
 

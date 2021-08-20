@@ -199,7 +199,7 @@ def find_mutations(conv_trie, mut_trie, g_dict, vcf_file, n_cells_top):
                     cell_dict[p] = cell_dict[p].union(set([c]))
                 else:
                     cell_dict[p] = set([c])
-        coverage_counter.update({p:1 for p in P.iterate(P.from_data([[True, p[0], p[1], True] for p in convs[1]]))})
+        coverage_counter.update({p:1 for p in P.iterate(P.from_data([[True, p[0], p[1], True] for p in convs[1]]), step=1)})
 
     cell_count_dict = {p:len(c_set) for p, c_set in cell_dict}
 

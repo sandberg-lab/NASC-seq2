@@ -190,6 +190,7 @@ def find_mutations(conv_trie, mut_trie, g_dict, vcf_file, n_cells_top):
     conversions_counter = Counter()
     coverage_counter = Counter()
     cell_dict = {}
+    mol_dict = {}
     for tag, convs in sorted(conv_trie.items()):
         if len(convs[0]) > 0:
             conversions_counter.update({p:1 for p in convs[0]})
@@ -197,8 +198,10 @@ def find_mutations(conv_trie, mut_trie, g_dict, vcf_file, n_cells_top):
             for p in convs[0]:
                 if p in cell_dict:
                     cell_dict[p] = cell_dict[p].union(set([c]))
+                    mol_dict[p].append(tag)
                 else:
                     cell_dict[p] = set([c])
+                    mol_dict[p] = [tag]
         coverage_counter.update({p:1 for p in P.iterate(P.from_data([[True, p[0], p[1], True] for p in convs[1]]), step=1)})
 
     cell_count_dict = {p:len(c_set) for p, c_set in cell_dict}
@@ -219,7 +222,7 @@ def find_mutations(conv_trie, mut_trie, g_dict, vcf_file, n_cells_top):
     p_median = stats_df['fraction'].median()
     stats_df['pval'] = stats_df.apply(lambda row: binom.sf(row['conversions'], row['coverage'], p_median), axis=1)
     if vcf_file is not None:
-        frac_ref = stats_df.apply(lambda row: np.array(list(get_alleles(locs_df.index[locs_df[row.name]].values,mut_trie,comparison_dict,g_dict['strand']))), axis=1).apply(lambda x: np.mean(x[~np.isnan(x)]) if np.mean(np.isnan(x)) != 1 else np.nan)
+        frac_ref = stats_df.apply(lambda row: np.array(list(get_alleles(mol_dict[row.name],mut_trie,comparison_dict,g_dict['strand']))), axis=1).apply(lambda x: np.mean(x[~np.isnan(x)]) if np.mean(np.isnan(x)) != 1 else np.nan)
         frac_ref.name = 'frac_ref'
         stats_df = stats_df.join(frac_ref)
         sig_df = stats_df[(stats_df['num_cells'] > 4).mul((stats_df['frac_ref'] - 0.5).abs() > 0.3).mul(stats_df['pval'] < 0.05/stats_df.shape[0])]

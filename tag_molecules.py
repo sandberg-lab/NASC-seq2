@@ -133,9 +133,10 @@ def createTag(d):
     return ''.join([''.join(key) + str(d[key]) + ';' for key in d.keys()])[:-1]
 
 
-def get_mols_w_mut(loc, ref, mut_trie, comparison_dict, strand, locs_df):
+def get_mols_w_mut(ref, mut_trie, comparison_dict, strand, mol_list):
     mols = []
-    for r in locs_df[locs_df[loc]].apply(lambda row: compare_to_allele(ref, row.name, mut_trie, comparison_dict, strand), axis=1):
+    r_list = [compare_to_allele(ref, mol, mut_trie, comparison_dict, strand) for mol in mol_list]
+    for r in r_list:
         if r[1]:
             mols.append(r[0])
     return mols
@@ -204,9 +205,9 @@ def find_mutations(conv_trie, mut_trie, g_dict, vcf_file, n_cells_top):
                     mol_dict[p] = [tag]
         coverage_counter.update({p:1 for p in P.iterate(P.from_data([[True, p[0], p[1], True] for p in convs[1]]), step=1)})
 
-    cell_count_dict = {p:len(c_set) for p, c_set in cell_dict}
+    cell_count_dict = {p:len(c_set) for p, c_set in cell_dict.items()}
 
-    stats_df = pd.DataFrame([conversions_counter, coverage_counter, cell_count_dict]).T
+    stats_df = pd.DataFrame([conversions_counter, coverage_counter, cell_count_dict]).T.dropna()
     stats_df.columns = ['conversions', 'coverage', 'num_cells']
     stats_df['fraction'] = stats_df['conversions']/stats_df['coverage']
 
@@ -225,18 +226,19 @@ def find_mutations(conv_trie, mut_trie, g_dict, vcf_file, n_cells_top):
         frac_ref = stats_df.apply(lambda row: np.array(list(get_alleles(mol_dict[row.name],mut_trie,comparison_dict,g_dict['strand']))), axis=1).apply(lambda x: np.mean(x[~np.isnan(x)]) if np.mean(np.isnan(x)) != 1 else np.nan)
         frac_ref.name = 'frac_ref'
         stats_df = stats_df.join(frac_ref)
-        sig_df = stats_df[(stats_df['num_cells'] > 4).mul((stats_df['frac_ref'] - 0.5).abs() > 0.3).mul(stats_df['pval'] < 0.05/stats_df.shape[0])]
+        sig_df = stats_df[(stats_df['num_cells'] > 4).mul((stats_df['frac_ref'] - 0.5).abs() > 0.3).mul(stats_df['pval'] < 0.05/stats_df.shape[0])].copy()
         sig_df['ref'] = sig_df['frac_ref'] > 0.5
     else:
         sig_df = stats_df[(stats_df['num_cells'] > 4).mul(stats_df['pval'] < 0.05/stats_df.shape[0])]
         sig_df['ref'] = True
-    sig_df_2 = stats_df[(stats_df['num_cells'] > n_cells_top).mul(stats_df['pval'] < 0.05/stats_df.shape[0])]
-    sif_df_2['ref'] = True
+    sig_df_2 = stats_df[(stats_df['num_cells'] > n_cells_top).mul(stats_df['pval'] < 0.05/stats_df.shape[0])].copy()
+    sig_df_2['ref'] = True
+    sig_df_2 = sig_df_2.drop(sig_df.index, errors='ignore')
     sig_df = sig_df.append(sig_df_2)
     sig_df['pos'] = sig_df.index
     sig_df['chrom'] = g_dict['seqid']
     sig_df['gene'] = g_dict['gene_id']
-    mols_series = sig_df.apply(lambda row: get_mols_w_mut(row.name, row['ref'],mut_trie,comparison_dict,g_dict['strand'], locs_df), axis=1)
+    mols_series = sig_df.apply(lambda row: get_mols_w_mut(row['ref'],mut_trie,comparison_dict,g_dict['strand'], mol_dict[row.name]), axis=1)
     return True, sig_df, mols_series
 
 

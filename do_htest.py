@@ -110,7 +110,10 @@ def make_write_function(h5file):
                 for k in data_to_write.keys():
                     data_to_write[k].append(specific_gene_dict[cell_id][k])
             for k, v in data_to_write.items():
-                dset = gene_grp.create_dataset(k, (len(v),), dtype=h5py.vlen_dtype(np.dtype('int32')))
+                if k == 'htest':
+                    dset = gene_grp.create_dataset(k, (len(v),), dtype=h5py.vlen_dtype(np.dtype('bool')))
+                else:
+                    dset = gene_grp.create_dataset(k, (len(v),), dtype=h5py.vlen_dtype(np.dtype('float32')))
                 for i, arr in enumerate(v):
                     dset[i] = arr
         hdf5_file.close()

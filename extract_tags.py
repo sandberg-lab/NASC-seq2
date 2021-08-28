@@ -144,7 +144,7 @@ def create_h5_function(h5outfile):
         while True:
             gene_name = q.get()
             if gene_name == None: break
-            f_gene = h5py.File('{}_tmp.h5'.format(gene_name), 'a', libver='latest')
+            f_gene = h5py.File('{}_tmp.h5'.format(gene_name), 'r', libver='latest')
             f_gene.copy('genes/{}'.format(gene_name), grp)
             f_gene.close()
             os.system("rm {}_tmp.h5".format(gene_name))

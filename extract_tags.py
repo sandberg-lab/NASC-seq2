@@ -108,7 +108,33 @@ def get_tags(filename_bam, g_dict, q):
                     nicer_content_dict[k].append(v)
                 else:
                     nicer_content_dict[k].append(v)
-    q.put((g_dict, nicer_content_dict))
+    f_gene = h5py.File('{}_tmp.h5'.format(g_dict['gene_id']), 'a', libver='latest')
+    gene_grp = f_gene.create_group(g_dict['gene_id'])
+    gene_grp.attrs['start'] = g_dict['start']
+    gene_grp.attrs['end'] = g_dict['end']
+    gene_grp.attrs['strand'] = g_dict['strand']
+    gene_grp.attrs['chrom'] = g_dict['seqid']
+    for tag, value in nicer_content_dict.items():
+        if tag == 'umi':
+            dt = h5py.special_dtype(vlen=str)
+        else:
+            dt = h5py.vlen_dtype(np.dtype('int32'))
+        if tag in ['sc', 'tc']:
+            tag_grp = gene_grp.create_group(tag)
+            for tag2, v2 in value.items():
+                dataset = tag_grp.create_dataset(tag2,(len(v2),),dtype=dt)
+                for i,arr in enumerate(v2):
+                    dataset[i] = arr
+        elif tag in ['cell','cl_name']:
+            dataset = gene_grp.create_dataset(tag, data=np.array(value, dtype='S'))
+        elif tag == 'umi':
+            dataset = gene_grp.create_dataset(tag, data=np.array(value, dtype=object), dtype=dt)
+        else:
+            dataset = gene_grp.create_dataset(tag, (len(value),), dtype=dt)
+            for i, arr in enumerate(value):
+                dataset[i] = arr
+    f_gene.close()
+    q.put(g_dict['gene_id'])
     return g_dict['gene_id']
 
 def create_h5_function(h5outfile):
@@ -116,32 +142,12 @@ def create_h5_function(h5outfile):
         f = h5py.File(h5outfile, 'a', libver='latest')
         grp = f.create_group('genes')
         while True:
-            gene_dict,content_dict = q.get()
-            if content_dict == None: break
-            gene_grp = grp.create_group(gene_dict['gene_id'])
-            gene_grp.attrs['start'] = gene_dict['start']
-            gene_grp.attrs['end'] = gene_dict['end']
-            gene_grp.attrs['strand'] = gene_dict['strand']
-            gene_grp.attrs['chrom'] = gene_dict['seqid']
-            for tag, value in content_dict.items():
-                if tag == 'umi':
-                    dt = h5py.special_dtype(vlen=str)
-                else:
-                    dt = h5py.vlen_dtype(np.dtype('int32'))
-                if tag in ['sc', 'tc']:
-                    tag_grp = gene_grp.create_group(tag)
-                    for tag2, v2 in value.items():
-                        dataset = tag_grp.create_dataset(tag2,(len(v2),),dtype=dt)
-                        for i,arr in enumerate(v2):
-                            dataset[i] = arr
-                elif tag in ['cell','cl_name']:
-                    dataset = gene_grp.create_dataset(tag, data=np.array(value, dtype='S'))
-                elif tag == 'umi':
-                    dataset = gene_grp.create_dataset(tag, data=np.array(value, dtype=object), dtype=dt)
-                else:
-                    dataset = gene_grp.create_dataset(tag, (len(value),), dtype=dt)
-                    for i, arr in enumerate(value):
-                        dataset[i] = arr
+            gene_name = q.get()
+            if gene_name == None: break
+            f_gene = h5py.File('{}_tmp.h5'.format(gene_name), 'a', libver='latest')
+            f_gene.copy('genes/{}'.format(gene_name), grp)
+            f_gene.close()
+            os.system("rm {}_tmp.h5".format(gene_name))
             q.task_done()
         f.close()
         q.task_done()
@@ -188,8 +194,8 @@ if __name__ == '__main__':
     q = m.JoinableQueue()
     p = Process(target=create_h5_function(h5outfile=filename_h5), args=(q,))
     p.start()
-    params = Parallel(n_jobs=threads, verbose = 3, backend='multiprocessing')(delayed(get_tags)(filename_bam, g_dict,q) for g,g_dict in gene_dict.items())
-    q.put((None,None))
+    params = Parallel(n_jobs=threads, verbose = 3, backend='loky')(delayed(get_tags)(filename_bam, g_dict,q) for g,g_dict in gene_dict.items())
+    q.put(None)
     p.join()
     end = time.time()
     print(end-start)

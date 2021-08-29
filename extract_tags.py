@@ -108,7 +108,7 @@ def get_tags(filename_bam, g_dict, q):
                     nicer_content_dict[k].append(v)
                 else:
                     nicer_content_dict[k].append(v)
-    f_gene = h5py.File('{}_tmp.h5'.format(g_dict['gene_id']), 'a', libver='latest')
+    f_gene = h5py.File('{}_tmp.h5'.format(g_dict['gene_id']), 'w', libver='latest')
     gene_grp = f_gene.create_group(g_dict['gene_id'])
     gene_grp.attrs['start'] = g_dict['start']
     gene_grp.attrs['end'] = g_dict['end']
@@ -145,7 +145,7 @@ def create_h5_function(h5outfile):
             gene_name = q.get()
             if gene_name == None: break
             f_gene = h5py.File('{}_tmp.h5'.format(gene_name), 'r', libver='latest')
-            f_gene.copy('genes/{}'.format(gene_name), grp)
+            f_gene.copy(gene_name, grp)
             f_gene.close()
             os.system("rm {}_tmp.h5".format(gene_name))
             q.task_done()

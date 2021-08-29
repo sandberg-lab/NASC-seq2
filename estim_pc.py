@@ -5,6 +5,7 @@ from multiprocessing import Process, Manager
 from scipy import sparse
 import argparse
 import os
+from collections import Counter
 os.environ['HDF5_USE_FILE_LOCKING']='FALSE'
 from scipy.stats import binom
 def createMkn(Akn,p_e): #Left out from Akn
@@ -81,18 +82,20 @@ def get_cell_dicts(genes,h5file,q):
         for cell,sc,tc,gA,cT,g,c in zip(cells,sc_array,tc_array,gA_array,cT_array,g_array,c_array):
             cell = cell.decode('utf-8')
             if cell in cell_dict:
-                cell_dict[cell]['gene'].append(gene)
-                cell_dict[cell]['sc'].append(sc)
-                cell_dict[cell]['tc'].append(tc)
+                counter = Counter()
+                for k,n in zip(sc,tc):
+                    counter.update({(k,n):1})
+                cell_dict[cell]['matrix'].update(counter)
                 cell_dict[cell]['gA'] += np.sum(gA)
                 cell_dict[cell]['cT'] += np.sum(cT)
                 cell_dict[cell]['g'] += np.sum(g)
                 cell_dict[cell]['c'] += np.sum(c)
             else:
                 cell_dict[cell] = {}
-                cell_dict[cell]['gene'] = [gene]
-                cell_dict[cell]['sc'] = [sc]
-                cell_dict[cell]['tc'] = [tc]
+                counter = Counter()
+                for k,n in zip(sc,tc):
+                    counter.update({(k,n):1})
+                cell_dict[cell]['matrix'] = counter
                 cell_dict[cell]['gA'] = np.sum(gA)
                 cell_dict[cell]['cT'] = np.sum(cT)
                 cell_dict[cell]['c'] = np.sum(g)
@@ -109,15 +112,14 @@ def make_write_function(h5file):
             for cell,d in cell_d.items():
                 if cell in full_cell_dict:
                     for k,v in d.items():
-                        if k in ['gene','sc','tc']:
-                            full_cell_dict[cell][k].extend(v)
+                        if k == 'matrix':
+                            full_cell_dict[cell][k].update(v)
                         else:
                             full_cell_dict[cell][k] += v
                 else:
                     full_cell_dict[cell] = {}
                     for k,v in d.items():
                         full_cell_dict[cell][k] = v
-
             del cell_d
             q.task_done()
         hdf5_file = h5py.File(h5file, 'a')
@@ -125,14 +127,15 @@ def make_write_function(h5file):
         for cell, d in full_cell_dict.items():
             cell_grp = grp.require_group(cell)
             for tag, value in d.items():
-                if tag == 'gene':
-                    cell_grp.create_dataset(tag, data=np.array(value, dtype='S'))
-                elif tag in ['sc','tc']:
-                    dset = cell_grp.create_dataset(tag, (len(value),),dtype=h5py.vlen_dtype(np.dtype('int32')))
-                    for i,arr in enumerate(value):
-                        dset[i] = arr
+                if tag == 'matrix':
+                    sc_list, tc_list = list(map(list,zip(*value.keys())))
+                    v_list = list(value.values())
+                    cell_grp.create_dataset('sc', data=sc_list)
+                    cell_grp.create_dataset('tc', data=tc_list)
+                    cell_grp.create_dataset('counts', data=v_list)
                 else:
-                    cell_grp.create_dataset(tag,data=value)
+                    cell_grp.attrs[tag] = value
+
         hdf5_file.close()
         q.task_done()
     return write_hdf5
@@ -140,11 +143,11 @@ def estim_Pc(cell_id, h5file):
     fd = h5py.File(h5file, 'r')
     grp = fd['cells/{}'.format(cell_id)]
     A = sparse.dok_matrix((500,500), dtype=np.int32)
-    for k,n in zip(np.concatenate(grp['sc'][:]),np.concatenate(grp['tc'][:])):
+    for k,n,v in zip(grp['sc'][:],grp['tc'][:], grp['counts'][:]):
         if k < 500 and n < 500:
-            A[k,n] += 1
+            A[k,n] = v
     A = A.toarray()
-    p_e = (grp['gA'][()]/grp['g'][()] + grp['cT'][()]/grp['c'][()])/2
+    p_e = (grp.attrs['gA']/grp.attrs['g'] + grp.attrs['cT']/grp.attrs['c'])/2
     fd.close()
     return estimateP_c(A,p_e,cell_id)
 if __name__ == '__main__':

@@ -150,6 +150,7 @@ def compile_gene_info(gene_id, h5file, q):
         for i, arr in enumerate(v):
             dset[i] = arr
     f_out.close()
+    fd.close()
     q.put(gene_id)
     return gene_id
 
@@ -166,7 +167,8 @@ def make_write_gene_function(h5file):
             gene_grp = hdf5_file['genes/{}'.format(gene_id)]
             for key in f_h5_gene.keys():
                 f_h5_gene.copy(key, gene_grp)
-            f_h5_cell.close()
+            f_h5_gene.close()
+            os.system('rm {}_tmp.h5'.format(gene_id))
             q.task_done()
     hdf5_file.close()
     q.task_done()

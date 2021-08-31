@@ -198,6 +198,7 @@ if __name__ == '__main__':
     h5file = args.hdf5
     threads = args.threads
     tmp_dir = args.tmp
+    skip = args.skip
 
     if tmp_dir != '.':
         os.system("mkdir -p {}".format(tmp_dir))

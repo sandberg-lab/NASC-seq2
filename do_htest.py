@@ -124,7 +124,7 @@ def make_write_cell_function(h5file, tmp_dir):
             q.task_done()
         hdf5_file = h5py.File(h5file, 'a')
         for cell_id in cell_id_list:
-            f_h5_cell = h5py.File('{}_tmp.h5'.format(cell_id),'r')
+            f_h5_cell = h5py.File(tmp_dir + '{}_tmp.h5'.format(cell_id),'r')
             cell_grp = hdf5_file['cells/{}'.format(cell_id)]
             for key in f_h5_cell.keys():
                 f_h5_cell.copy(key, cell_grp)
@@ -193,6 +193,7 @@ if __name__ == '__main__':
     parser.add_argument('-h5', '--hdf5', metavar='input', type=str, help='.h5 file to process')
     parser.add_argument('-t', '--threads', metavar='threads', type=int, default=1, help='Number of threads')
     parser.add_argument('--tmp', metavar='dir', type=str, default='./', help='Directory to write temporary files')
+    parser.add_argument('--skip', action='store_true')
     args = parser.parse_args()
     h5file = args.hdf5
     threads = args.threads
@@ -212,7 +213,8 @@ if __name__ == '__main__':
     q = m.JoinableQueue()
     p = Process(target=make_write_cell_function(h5file, tmp_dir), args=(q,))
     p.start()
-    res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(cell_new_htest)(cell_id, h5file, 0.01, q, tmp_dir) for cell_id in cell_list)
+    if not skip:
+        res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(cell_new_htest)(cell_id, h5file, 0.01, q, tmp_dir) for cell_id in cell_list)
     q.put(None)
     p.join()
 

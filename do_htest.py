@@ -42,7 +42,7 @@ def get_c_and_p(n, p_c, p_e, a):
     return {'c': c, 'q': p}
 
 
-def cell_new_htest(cell_id, h5file, a, q, tmp_dir):
+def cell_new_htest(cell_id, h5file, a, tmp_dir):
     fd = h5py.File(h5file, 'r')
     cell_grp = fd['cells/{}'.format(cell_id)]
     p_c = cell_grp.attrs['p_c']
@@ -125,7 +125,7 @@ def write_hdf5_cells(cell_id_list, h5file, tmp_dir):
         hdf5_file.close()
     return True
 
-def compile_gene_info(gene_id, h5file, q, tmp_dir):
+def compile_gene_info(gene_id, h5file, tmp_dir):
     fd = h5py.File(h5file, 'r')
     gene_id_bstring = gene_id.encode()
     
@@ -152,7 +152,6 @@ def compile_gene_info(gene_id, h5file, q, tmp_dir):
             dset[i] = arr
     f_out.close()
     fd.close()
-    q.put(gene_id)
     return gene_id
 
 
@@ -195,14 +194,14 @@ if __name__ == '__main__':
     gene_list = list(fd['genes'].keys())
     fd.close()
     if not skip:
-        res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(cell_new_htest)(cell_id, h5file, 0.01, q, tmp_dir) for cell_id in cell_list)
+        res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(cell_new_htest)(cell_id, h5file, 0.01, tmp_dir) for cell_id in cell_list)
 
     print('Moving result into main file')
-    write_hdf5_cells(res, h5file, tmp_dir)
+    write_hdf5_cells(cell_list, h5file, tmp_dir)
     print('Compiling information on gene level')
-    res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(compile_gene_info)(gene_id, h5file, q, tmp_dir) for gene_id in gene_list)
+    res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(compile_gene_info)(gene_id, h5file, tmp_dir) for gene_id in gene_list)
     print('Moving result into main file')
     
-    write_hdf5_genes(res, h5file, tmp_dir)
+    write_hdf5_genes(gene_list, h5file, tmp_dir)
 
     print('Done.')

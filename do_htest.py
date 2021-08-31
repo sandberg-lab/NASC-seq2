@@ -42,7 +42,7 @@ def get_c_and_p(n, p_c, p_e, a):
     return {'c': c, 'q': p}
 
 
-def cell_new_htest(cell_id, h5file, a, q):
+def cell_new_htest(cell_id, h5file, a, q, tmp_dir):
     fd = h5py.File(h5file, 'r')
     cell_grp = fd['cells/{}'.format(cell_id)]
     p_c = cell_grp.attrs['p_c']
@@ -86,7 +86,7 @@ def cell_new_htest(cell_id, h5file, a, q):
     res_dict['q_htest'] = split_list(q_array, len_to_split)
     res_dict['power'] = split_list(power_array, len_to_split)
     
-    f_h5_cell = h5py.File('{}_tmp.h5'.format(cell_id),'w')
+    f_h5_cell = h5py.File(tmp_dir+'{}_tmp.h5'.format(cell_id),'w')
     for k,v in res_dict.items():
         if k == 'gene':
             f_h5_cell.create_dataset(tag, data=np.array(v, dtype='S'))
@@ -105,26 +105,28 @@ def cell_new_htest(cell_id, h5file, a, q):
 def split_list(l, len_to_split):
     return [l[x - y: x] for x, y in zip(accumulate(len_to_split), len_to_split)]
 
-
-def make_write_cell_function(h5file):
+def make_write_cell_function(h5file, tmp_dir):
     def write_hdf5(q):
-        f_h5 = h5py.File(h5file, 'a')
+        cell_id_list = []
         while True:
             cell_id = q.get()
             if cell_id is None:
                 break
+            cell_id_list.append(cell_id)
+            q.task_done()
+        hdf5_file = h5py.File(h5file, 'a')
+        for cell_id in cell_id_list:
             f_h5_cell = h5py.File('{}_tmp.h5'.format(cell_id),'r')
-            cell_grp = f_h5['cells/{}'.format(cell_id)]
+            cell_grp = hdf5_file['cells/{}'.format(cell_id)]
             for key in f_h5_cell.keys():
                 f_h5_cell.copy(key, cell_grp)
             f_h5_cell.close()
-            os.system('rm {}_tmp.h5'.format(cell_id))
-            q.task_done()
-        f_h5.close()
+            os.system('rm {}{}_tmp.h5'.format(tmp_dir,cell_id))
+            hdf5_file.close()
         q.task_done()
     return write_hdf5
 
-def compile_gene_info(gene_id, h5file, q):
+def compile_gene_info(gene_id, h5file, q, tmp_dir):
     fd = h5py.File(h5file, 'r')
     gene_id_bstring = gene_id.encode()
     
@@ -134,7 +136,7 @@ def compile_gene_info(gene_id, h5file, q):
         if gene_id_bstring in gene_array:
             loc = np.where(gene_id_bstring == gene_array)
             gene_dict[cell_id] = {'htest': cell_grp['htest'][loc], 'rel_ll': cell_grp['rel_ll'][loc],'c_htest': cell_grp['c_htest'][loc],'q_htest': cell_grp['q_htest'][loc],'power': cell_grp['power'][loc]}
-    f_out = h5py.File('{}_tmp.h5'.format(gene_id), 'w')
+    f_out = h5py.File(tmp_dir+'{}_tmp.h5'.format(gene_id), 'w')
     gene_grp = fd['genes/{}'.format(gene_id)]
     data_to_write =  {'htest': [], 'rel_ll': [], 'c_htest': [], 'q_htest': [], 'power': []}
     cells = gene_grp['cell'][:]
@@ -156,22 +158,25 @@ def compile_gene_info(gene_id, h5file, q):
 
 
 
-def make_write_gene_function(h5file):
+def make_write_gene_function(h5file, tmp_dir):
     def write_hdf5(q):
-        hdf5_file = h5py.File(h5file, 'a')
+        gene_id_list = []
         while True:
             gene_id = q.get()
             if gene_id is None:
                 break
-            f_h5_gene = h5py.File('{}_tmp.h5'.format(gene_id),'r')
+            gene_id_list.append(gene_id)
+            q.task_done()
+        hdf5_file = h5py.File(h5file, 'a')
+        for gene_id in gene_id_list:
+            f_h5_gene = h5py.File(tmp_dir + '{}_tmp.h5'.format(gene_id),'r')
             gene_grp = hdf5_file['genes/{}'.format(gene_id)]
             for key in f_h5_gene.keys():
                 f_h5_gene.copy(key, gene_grp)
             f_h5_gene.close()
-            os.system('rm {}_tmp.h5'.format(gene_id))
-            q.task_done()
-    hdf5_file.close()
-    q.task_done()
+            os.system('rm {}{}_tmp.h5'.format(tmp_dir,gene_id))
+            hdf5_file.close()
+        q.task_done()
     return write_hdf5
 
 
@@ -179,10 +184,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Do hypothesis test for new RNA')
     parser.add_argument('-h5', '--hdf5', metavar='input', type=str, help='.h5 file to process')
     parser.add_argument('-t', '--threads', metavar='threads', type=int, default=1, help='Number of threads')
+    parser.add_argument('--tmp', metavar='dir', type=str, default='./', help='Directory to write temporary files')
     args = parser.parse_args()
     h5file = args.hdf5
     threads = args.threads
-    
+    tmp_dir = args.tmp
+
+    if tmp_dir != '.':
+        os.system("mkdir -p {}".format(tmp_dir))
+        if tmp_dir[-1] != '/':
+            tmp_dir = tmp_dir + '/'
+
     print('Doing hypothesis test for new RNA, cell level')
     fd = h5py.File(h5file, 'r')
     cell_list = list(fd['cells'].keys())
@@ -190,9 +202,9 @@ if __name__ == '__main__':
     fd.close()
     m = Manager()
     q = m.JoinableQueue()
-    p = Process(target=make_write_cell_function(h5file), args=(q,))
+    p = Process(target=make_write_cell_function(h5file, tmp_dir), args=(q,))
     p.start()
-    res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(cell_new_htest)(cell_id, h5file, 0.01, q) for cell_id in cell_list)
+    res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(cell_new_htest)(cell_id, h5file, 0.01, q, tmp_dir) for cell_id in cell_list)
     q.put(None)
     p.join()
 
@@ -200,9 +212,9 @@ if __name__ == '__main__':
 
     m = Manager()
     q = m.JoinableQueue()
-    p = Process(target=make_write_gene_function(h5file), args=(q,))
+    p = Process(target=make_write_gene_function(h5file, tmp_dir), args=(q,))
     p.start()
-    res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(compile_gene_info)(gene_id, h5file, q) for gene_id in gene_list)
+    res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(compile_gene_info)(gene_id, h5file, q, tmp_dir) for gene_id in gene_list)
     q.put(None)
     p.join()
 

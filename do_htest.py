@@ -96,8 +96,8 @@ def cell_new_htest(cell_id, h5file, a, q, tmp_dir):
     f_h5_cell = h5py.File(tmp_dir+'{}_tmp.h5'.format(cell_id),'w')
     for k,v in res_dict.items():
         if k == 'gene':
-            f_h5_cell.create_dataset(tag, data=np.array(v, dtype='S'))
-        elif tag=='htest':
+            f_h5_cell.create_dataset(k, data=np.array(v, dtype='S'))
+        elif k=='htest':
             dset = f_h5_cell.create_dataset(k, (len(v),), dtype=h5py.vlen_dtype(np.dtype('bool')))
             for i, arr in enumerate(v):
                 dset[i] = arr

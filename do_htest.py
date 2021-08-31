@@ -58,8 +58,15 @@ def cell_new_htest(cell_id, h5file, a, q, tmp_dir):
         if cell_id_bstring in cell_array:
             gene_list.append(gene)
             loc = np.where(cell_id_bstring == cell_array)[0][0]
-            sc_list.append(gene_grp['sc'][loc])
-            tc_list.extend(gene_grp['tc'][loc])
+            if gene_grp.attrs['strand'] == '+':
+                sc_array = gene_grp['sc/tC'][loc]
+                tc_array = gene_grp['tc/t'][loc]
+            else:
+                sc_array = gene_grp['sc/aG'][loc]
+                tc_array = gene_grp['tc/a'][loc]
+
+            sc_list.append(sc_array)
+            tc_list.extend(tc_array)
     gene_array = np.array(gene_list)
     len_to_split = [len(c) for c in sc_list]
     sc_array = np.concatenate(sc)

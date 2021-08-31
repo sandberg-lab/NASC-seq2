@@ -105,6 +105,7 @@ def cell_new_htest(cell_id, h5file, a, q, tmp_dir):
             dset = f_h5_cell.create_dataset(k, (len(v),), dtype=h5py.vlen_dtype(np.dtype('float32')))
             for i, arr in enumerate(v):
                 dset[i] = arr
+    f_h5_cell.close()
     q.put(cell_id)
     return cell_id
 

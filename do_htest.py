@@ -57,7 +57,7 @@ def cell_new_htest(cell_id, h5file, a, q, tmp_dir):
         cell_array =  gene_grp['cell'][:]
         if cell_id_bstring in cell_array:
             gene_list.append(gene)
-            loc = np.where(cell_id_bstring == cell_array)
+            loc = np.where(cell_id_bstring == cell_array)[0][0]
             sc_list.append(gene_grp['sc'][loc])
             tc_list.extend(gene_grp['tc'][loc])
     gene_array = np.array(gene_list)
@@ -134,7 +134,7 @@ def compile_gene_info(gene_id, h5file, q, tmp_dir):
     for cell_id, cell_grp in fd['cells'].items():
         gene_array = cell_grp['gene'][:]
         if gene_id_bstring in gene_array:
-            loc = np.where(gene_id_bstring == gene_array)
+            loc = np.where(gene_id_bstring == gene_array)[0][0]
             gene_dict[cell_id] = {'htest': cell_grp['htest'][loc], 'rel_ll': cell_grp['rel_ll'][loc],'c_htest': cell_grp['c_htest'][loc],'q_htest': cell_grp['q_htest'][loc],'power': cell_grp['power'][loc]}
     f_out = h5py.File(tmp_dir+'{}_tmp.h5'.format(gene_id), 'w')
     gene_grp = fd['genes/{}'.format(gene_id)]

@@ -69,7 +69,7 @@ def cell_new_htest(cell_id, h5file, a, q, tmp_dir):
             tc_list.extend(tc_array)
     gene_array = np.array(gene_list)
     len_to_split = [len(c) for c in sc_list]
-    sc_array = np.concatenate(sc)
+    sc_array = np.concatenate(sc_list)
     tc_array = np.array(tc_list)
     fd.close()
 

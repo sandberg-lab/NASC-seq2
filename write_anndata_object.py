@@ -39,7 +39,7 @@ if __name__ == '__main__':
         all_dfs[k] = pd.DataFrame(d).fillna(0)
     pc_dict = {}
     pe_dict = {}
-    for cell, cell_grp in hf5file['cells'].items():
+    for cell, cell_grp in h5file['cells'].items():
         pc_dict[cell] = cell_grp.attrs['p_c']
         pe_dict[cell] = cell_grp.attrs['p_e']
     pe_series = pd.Series(pe_dict).reindex(all_dfs['total'].index)

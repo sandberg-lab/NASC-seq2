@@ -116,8 +116,6 @@ def split_list(l, len_to_split):
 def write_hdf5_cells(cell_id_list, h5file, tmp_dir):
     hdf5_file = h5py.File(h5file, 'a')
     for cell_id in cell_id_list:
-        if cell_id == 'AACGGACTCGAACAAGGTCA':
-            continue
         f_h5_cell = h5py.File(tmp_dir + '{}_tmp.h5'.format(cell_id),'r')
         cell_grp = hdf5_file['cells/{}'.format(cell_id)]
         for key in f_h5_cell.keys():

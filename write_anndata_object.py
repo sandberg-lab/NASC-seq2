@@ -17,7 +17,7 @@ if __name__ == '__main__':
     all_dicts = {'total': {}, 'new': {}, 'old': {}, 'spliced': {}, 'unspliced': {}}
     for gene, gene_grp in h5file['genes'].items():
         cells = [cell.decode('utf-8') for cell in gene_grp['cell'][:]]
-        new_tensor = tf.ragged.constant(gene_grp['htest'][:])
+        new_tensor =  tf.cast(tf.ragged.constant(gene_grp['htest'][:]), dtype=np.int32)
         intronic_reads = tf.ragged.constant(gene_grp['ir'][:])
     
         new = tf.math.reduce_sum(new_tensor, axis=1).numpy()

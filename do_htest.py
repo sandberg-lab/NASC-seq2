@@ -116,13 +116,15 @@ def split_list(l, len_to_split):
 def write_hdf5_cells(cell_id_list, h5file, tmp_dir):
     hdf5_file = h5py.File(h5file, 'a')
     for cell_id in cell_id_list:
+        if cell_id == 'AACGGACTCGAACAAGGTCA':
+            continue
         f_h5_cell = h5py.File(tmp_dir + '{}_tmp.h5'.format(cell_id),'r')
         cell_grp = hdf5_file['cells/{}'.format(cell_id)]
         for key in f_h5_cell.keys():
             f_h5_cell.copy(key, cell_grp)
         f_h5_cell.close()
         os.system('rm {}{}_tmp.h5'.format(tmp_dir,cell_id))
-        hdf5_file.close()
+    hdf5_file.close()
     return True
 
 def compile_gene_info(gene_id, h5file, tmp_dir):
@@ -166,7 +168,7 @@ def write_hdf5_genes(gene_id_list, h5file,tmp_dir):
             f_h5_gene.copy(key, gene_grp)
         f_h5_gene.close()
         os.system('rm {}{}_tmp.h5'.format(tmp_dir,gene_id))
-        hdf5_file.close()
+    hdf5_file.close()
     return True
 
 

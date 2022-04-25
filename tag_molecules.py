@@ -338,7 +338,9 @@ if __name__ == '__main__':
     outfile = args.output
 #    h5outfile = 'mESC_NASCseq_EXP-20-CB7751.h5'
     h5outfile = args.mutations
-
+    
+    if vcf_file == 'None':
+        vcf_file = None
     n_cells_top = args.cell_threshold
 #    contig = None
     contig = args.contig

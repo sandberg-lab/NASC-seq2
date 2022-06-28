@@ -1,4 +1,7 @@
+import pygtrie
 import argparse
+import tensorflow as tf
+import pysam
 import h5py
 import vcf
 import numpy as np
@@ -67,9 +70,9 @@ def get_alleles_per_gene_no_mutation_file(gene, h5_filename, bamfile_stitched, v
         if len(hits) > 0:
             try:
                 a = get_allele(hits,comparison_dict,s,new_trie['{}/{}'.format(cell,umi)])
+                count = a
             except KeyError:
                 count = (0, 0)
-            count = a
         else:
             count = (0,0)
         if count[0] > 0 and count[1] == 0:

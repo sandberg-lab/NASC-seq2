@@ -122,8 +122,8 @@ def create_h5_function(h5outfile):
 def main():
     parser = argparse.ArgumentParser(description='Add allele status per molecule')
     parser.add_argument('-h5_in','--hdf5_in',metavar='input', type=str, help='.h5 file to process')
-    parser.add_argument('-b', '--bamfile', metavar='bam', type=int, default=1, help='Stitched bam file')
-    parser.add_argument('-v', '--vcf_file', metavar='vcf', type=int, default=1, help='vcf file')
+    parser.add_argument('-b', '--bamfile', metavar='bam', type=str, default=1, help='Stitched bam file')
+    parser.add_argument('-v', '--vcf_file', metavar='vcf', type=str, default=1, help='vcf file')
     parser.add_argument('-h5_out','--hdf5_out',metavar='output', type=str, help='.h5 file to process')
     parser.add_argument('-t', '--threads', metavar='threads', type=int, default=1, help='Number of threads')
 

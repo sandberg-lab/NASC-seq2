@@ -39,10 +39,8 @@ def get_alleles_per_gene_no_mutation_file(gene, h5_filename, bamfile_stitched, v
     example_gene_h5 = h5_file['genes/{}'.format(gene)]
     s = example_gene_h5.attrs['strand']
     cell_list = [cell.decode('utf-8') for cell in example_gene_h5['cell'][:]]
-    try:
-        cell_dict = {cell: eval(umis) for cell,umis in zip(cell_list,example_gene_h5['umi'][:])}
-    except:
-        cell_dict = {cell: umis for cell,umis in zip(cell_list,example_gene_h5['umi'][:])}
+    
+    cell_dict = {cell: umis.decode('utf-8').split(',') for cell,umis in zip(cell_list,example_gene_h5['umi'][:])}
     htest_dict = {cell: htests for cell, htests in zip(cell_list,example_gene_h5['htest'][:])}
     for cell, l in cell_dict.items():
         htests = htest_dict[cell]

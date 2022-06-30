@@ -128,7 +128,7 @@ def get_tags(filename_bam, g_dict, q):
         elif tag in ['cell','cl_name']:
             dataset = gene_grp.create_dataset(tag, data=np.array(value, dtype='S'))
         elif tag == 'umi':
-            value = ','.join(value)
+            value = [','.join(l) for l in value]
             dataset = gene_grp.create_dataset(tag, data=np.array(value, dtype='S'))
         else:
             dataset = gene_grp.create_dataset(tag, (len(value),), dtype=dt)

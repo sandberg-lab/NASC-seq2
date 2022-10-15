@@ -177,11 +177,13 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--threads', metavar='threads', type=int, default=1, help='Number of threads')
     parser.add_argument('--tmp', metavar='dir', type=str, default='./', help='Directory to write temporary files')
     parser.add_argument('--skip', action='store_true')
+    parser.add_argument('--alpha', metavar='alpha', type=float, default=0.01, help='Alpha-level of hypothesis test')
     args = parser.parse_args()
     h5file = args.hdf5
     threads = args.threads
     tmp_dir = args.tmp
     skip = args.skip
+    alpha = args.alpha
 
     if tmp_dir != '.':
         os.system("mkdir -p {}".format(tmp_dir))
@@ -194,7 +196,7 @@ if __name__ == '__main__':
     gene_list = list(fd['genes'].keys())
     fd.close()
     if not skip:
-        res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(cell_new_htest)(cell_id, h5file, 0.01, tmp_dir) for cell_id in cell_list)
+        res = Parallel(n_jobs=threads, verbose=3, backend='loky')(delayed(cell_new_htest)(cell_id, h5file, alpha, tmp_dir) for cell_id in cell_list)
 
     print('Moving result into main file')
     write_hdf5_cells(cell_list, h5file, tmp_dir)

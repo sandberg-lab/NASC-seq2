@@ -1,0 +1,93 @@
+  ###########################################
+#Welcome to zUMIs and NASC-seq by zUMIs
+#below, please fill the mandatory inputs
+#We expect full paths for all files.
+###########################################
+
+#define a project name that will be used to name output files
+project: NASCseqPF3 ## Small changes to mapping parameters
+
+#Sequencing File Inputs:
+#For each input file, make one list object & define path and barcode ranges
+#base definition vocabulary: BC(n) UMI(n) cDNA(n).
+#Barcode range definition needs to account for all ranges. You can give several comma-separated ranges for BC & UMI sequences, eg. BC(1-6,20-26)
+#you can specify between 1 and 4 input files
+sequence_files:
+  file1:
+    name: /mnt/helix/tests/nascseq/fastq/NASCseq2.Riga.read1.fastq.gz
+    base_definition:
+      - UMI(12-19)
+      - cDNA(23-200)
+    find_pattern: ATTGCGCAATG;2
+  file2:
+    name: /mnt/helix/tests/nascseq/fastq/NASCseq2.Riga.read2.fastq.gz
+    base_definition:
+      - cDNA(1-200)
+      - BC(201-220)
+
+#reference genome setup
+reference:
+  STAR_index: /mnt/storage1/home/chrisz/resources/genomes/Mouse_GRCm39/STAR7_nmask_noGTF
+  GTF_file: /mnt/storage1/home/chrisz/resources/genomes/Mouse_GRCm39/gencode.GRCm39.vM29.primary_assembly.annotation.noChr.rRNA.gtf
+  additional_files: /mnt/helix/tests/nascseq/other/diySpikesExtracted.fa
+  additional_STAR_params: '--outFilterMismatchNmax 40 --outFilterMismatchNoverLmax 0.25 --outSAMattributes MD NH HI AS nM XS --outSAMstrandField intronMotif --clip3pAdapterSeq CTGTCTCTTATACACATCT'
+#output directory
+out_dir:  /mnt/helix/tests/nascseq/zUMIs_CZ #specify the full path to the output directory
+
+###########################################
+#below, you may optionally change default parameters
+###########################################
+
+#number of processors to use
+num_threads: 100
+mem_limit: 100 #Memory limit in Gigabytes, null meaning unlimited RAM usage.
+
+#barcode & UMI filtering options
+#number of bases under the base quality cutoff that should be filtered out.
+#Phred score base-cutoff for quality control.
+filter_cutoffs:
+  BC_filter:
+    num_bases: 5
+    phred: 20
+  UMI_filter:
+    num_bases: 3
+    phred: 20
+
+#Options for Barcode handling
+#You can give either number of top barcodes to use or give an annotation of cell barcodes.
+#If you leave both barcode_num and barcode_file empty, zUMIs will perform automatic cell barcode selection for you!
+barcodes:
+  barcode_num: ~ #take top number of cell barcodes
+  barcode_file: /mnt/helix/tests/nascseq/other/indicesUsed_DNBPE.txt
+  automatic: no #Give yes/no to this option. If the cell barcodes should be detected automatically. If the barcode file is given in combination with automatic barcode detection, the list of given barcodes will be used as whitelist.
+  BarcodeBinning: 2 #Hamming distance binning of close cell barcode sequences.
+  nReadsperCell: 1000 #Keep only the cell barcodes with atleast n number of reads.
+  demultiplex: yes #produce per-cell demultiplexed bam files.
+
+#Options related to counting of reads towards expression profiles
+counting_opts:
+  introns: yes #can be set to no for exon-only counting.
+  downsampling: "5000,10000,20000,50000,100000,200000,500000" #Number of reads to downsample to. This value can be a fixed number of reads (e.g. 10000) or a desired range (e.g. 10000-20000) Barcodes with less than <d> will not be reported. 0 means adaptive downsampling. Default: 0.
+  strand: 1 #Is the library stranded? 0 = unstranded, 1 = positively stranded, 2 = negatively stranded
+  Ham_Dist: 1 #Hamming distance collapsing of UMI sequences.
+  write_ham: yes #If hamming distance collapse of UMI sequences is performed, write out mapping tables & UB corrected bam files.
+  velocyto: no #Would you like velocyto to do counting of intron-exon spanning reads
+  primaryHit: yes #Do you want to count the primary Hits of multimapping reads towards gene expression levels?
+  twoPass: no #perform basic STAR twoPass mapping
+
+#produce stats files and plots?
+make_stats: yes
+
+#Start zUMIs from stage. Possible TEXT(Filtering, Mapping, Counting, Summarising). Default: Filtering.
+which_Stage: Filtering
+
+NASC-seq:
+  NASC-stage: 'all'  ## Possible values ('stitcher','tag','extract','qc','estim_pc','hyptest')
+  script_dir: /home/julianem/programs/NASC-seqV3/ #Directory where to find scripts for NASC-seq data analysis
+  verbose: False
+  vcf: /mnt/storage1/home/chrisz/resources/genomes/Mouse_GRCm39/CAST.SNPs.validated.passedFiltering.liftover.vcf.gz ## Optional, add in vcf file
+  fasta:  /mnt/storage1/home/chrisz/resources/genomes/Mouse_GRCm39/Mus_musculus.GRCm39.dna.primary_assembly.CAST_nmasked.fa
+  isoform: /mnt/helix/tests/nascseq/zUMIs_CZ/NASCseqPF3.final_annot.intervals.json
+  junction: /mnt/helix/tests/nascseq/zUMIs_CZ/NASCseqPF3.final_annot.refskip.json
+  stitcher_exec: /home/antonl/programs/stitcher_make_private/stitcher_extended/stitcher.py
+  spikeID: 'diySpike'

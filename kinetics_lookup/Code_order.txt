@@ -1,5 +1,5 @@
 Code order
 
-Makefile -> parameter_table_calc_from_prob_3proxies.py -> trim_lookup_table.py -> bootstrap_nonzero_three_estimate_lookup_one_csv_v2.py
+Makefile -> parameter_table_calc_from_prob_3proxies.py -> trim_lookup_table.py -> bootstrap_nonzero_three_estimate_lookup_one_csv_v5.py
 
-anndata_to_csv.py -> bootstrap_nonzero_three_estimate_lookup_one_csv_v2.py
+anndata_to_csv.py -> bootstrap_nonzero_three_estimate_lookup_one_csv_v5.py

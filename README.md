@@ -1,6 +1,6 @@
 # NASC-seq2 scripts
 
-## NASCseqV3.py
+## NASCseqV2.py
 
 This function allows you to easily run some (or all) of the steps of the NASC-seq2 analysis pipeline.
 To do this, the following information should be added to the zUMIs yaml file:

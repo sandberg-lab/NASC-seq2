@@ -52,7 +52,7 @@ Please note that some of the zUMIs settings (such as num_threads and num_memory)
 
 ### Usage
 
-NASCseqV3.py [-y yamlfile]
+NASCseqV2.py [-y yamlfile]
 
 **arguments:**
 ```

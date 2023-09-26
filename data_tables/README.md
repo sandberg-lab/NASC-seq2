@@ -1,0 +1,1 @@
+Files named [something].bz2.part[suffix] can be decompressed in mac using "cat [something].bz2.part* > [something].bz2" and then uncompressed using bgunzip. On Windows the command should be "copy [something].bz2.partaa+[something].bz2.partab [something].bz2" instead.

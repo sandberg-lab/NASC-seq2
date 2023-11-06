@@ -1,4 +1,4 @@
-import argparse
+import argparse, sys, os
 import numpy as np
 import ctypes
 from collections import Counter
@@ -6,7 +6,7 @@ import pandas as pd
 from joblib import delayed,Parallel
 from scipy.optimize import minimize
 def make_c_function(prec):
-    c_lib = ctypes.CDLL('/home/antonl/programs/hyp_new_git/hyp1f1_arb/hyp1f1_arb_vector.so')
+    c_lib = ctypes.CDLL(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'hyp1f1_arb_vector.so'))
     c_lib.calculate_probs.argtypes =  [ctypes.POINTER(ctypes.c_double), ctypes.c_double,ctypes.c_double,ctypes.c_double,ctypes.c_double,ctypes.c_ulong, ctypes.c_ulong]
     c_lib.calculate_probs.restype = None
     prec_ulong = ctypes.c_ulong(prec)

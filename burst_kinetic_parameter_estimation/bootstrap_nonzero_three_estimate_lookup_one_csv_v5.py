@@ -113,10 +113,12 @@ def calc_nums(freq_size_adj0_kdtree, param_lookup, interpolation_points, lookup_
     burstsize =    ksyn/closing
     return value_series.apply(binary).sum(), freq_adj0, size_adj0, size_cov, burstnum, closing, ksyn, burstsize
 
-def one_gene(gene, df1_gene, freq_size_adj0_kdtree, param_lookup, add_cov, permutations, interpolation_points, lookup_mode, proc):
+def one_gene(gene, df1_gene, freq_size_adj0_kdtree, param_lookup, add_cov, permutations, interpolation_points, lookup_mode, proc, o):
     import warnings, functools
     #warnings.filterwarnings("ignore")
     
+    freq_adj0_name, size_adj0_name, size_cov_name, open_chance_name, close_chance_name, transcribe_chance_name, burst_size_name, burstnum_name, koff_name, ksyn_name, burstsize_name = o.parameter_names
+
     if freq_size_adj0_kdtree is None:
         freq_size_adj0_kdtree, param_lookup, interpolation_points = build_KD_tree(param_lookup, lookup_mode)
     
@@ -208,7 +210,7 @@ if '__main__' == __name__:
     pool = futures.ProcessPoolExecutor(o.proc[0])
     jobs = []
     for gene in df1:
-        jobs.append(pool.submit(one_gene, gene, df1[gene], freq_size_adj0_kdtree, param_lookup, o.add_cov, o.permutations, interpolation_points, o.lookup_mode, o.proc[1]))
+        jobs.append(pool.submit(one_gene, gene, df1[gene], freq_size_adj0_kdtree, param_lookup, o.add_cov, o.permutations, interpolation_points, o.lookup_mode, o.proc[1], o))
     table_out = pandas.DataFrame([job.result() for job in tqdm.tqdm(jobs)])
     
     table_out.to_csv(o.table_out, sep='\t')

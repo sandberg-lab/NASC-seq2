@@ -1,4 +1,4 @@
-import pandas, argparse, json, jsonpickle, gzip
+import pandas, argparse, gzip
 from scipy import interpolate
 
 def hash_dataframe(params_to_zeros_table):
@@ -17,12 +17,13 @@ if '__main__' == __name__:
     o = parser.parse_args()
     
     if o.table_out is None:
-        if '.trimmed.' is o.table_in: raise Exception
+        if '.trimmed.' in o.table_in: raise Exception
         
         parts = o.table_in.rsplit('.', 1)
         o.table_out = '.trimmed.'.join(parts)
     
     if o.json is True:
+        import json, jsonpickle
         o.json = o.table_out + '.json.gz'
     
     open_chance_name, close_chance_name, transcribe_chance_name, freq_adj0_name, size_adj0_name, size_cov_name = 'open_chance', 'close_chance', 'transcribe_chance', 'freq_adj0', 'size_adj0', 'size_cov'

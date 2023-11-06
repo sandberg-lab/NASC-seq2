@@ -1,10 +1,10 @@
-import collections, itertools
+import collections, itertools, sys, os
 import numpy as np
 
 
 def make_c_function(prec):
     import ctypes
-    c_lib = ctypes.CDLL('/home/danielr/cdk9as/src/hyp1f1_arb-main/hyp1f1_arb_vector.so')
+    c_lib = ctypes.CDLL(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'hyp1f1_arb_vector.so'))
     c_lib.calculate_probs.argtypes =  [ctypes.POINTER(ctypes.c_double), ctypes.c_double,ctypes.c_double,ctypes.c_double,ctypes.c_double,ctypes.c_ulong, ctypes.c_ulong]
     c_lib.calculate_probs.restype = None
     prec_ulong = ctypes.c_ulong(prec)

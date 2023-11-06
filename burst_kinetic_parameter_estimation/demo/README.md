@@ -1,4 +1,4 @@
-This demo shows how to use the script in this repository to go from a molecular count table to burst kinetic parameters.
+This demo shows how to use the script in this repository to go from a molecular count table, for single-cell NASC-Seq2 data or similar nascent RNA labeling data, to burst kinetic parameters of the telegraph model, that is, k<sub>on</sub>, k<sub>off</sub> and k<sub>syn</sub> where k<sub>on</sub> is the rate of transiting from OFF to ON state, k<sub>off</sub> is the rate from ON to OFF and k<sub>syn</sub> is the rate of transcription within the ON state.
 
 To run the code, you will need python3 (available at https://www.python.org/downloads/) and install python packages (see https://pip.pypa.io/en/stable/installation/ if pip is missing):  
 `python3 -m pip install pandas scipy numpy joblib`  

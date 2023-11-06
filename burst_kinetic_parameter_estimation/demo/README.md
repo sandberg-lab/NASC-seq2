@@ -25,7 +25,7 @@ And then refine the numbers (especially lowly expressed genes) by running (takes
 `python3 ../transient_ml_v2.py -i demo_newrna_reconstructedmolecules.csv --guesses demo_kinetics_from_lookup.tsv -d 0.258 --prec 10000 --time 1.23 --threads 200 -o demo_kinetics_from_maximum_likelihood.tsv`
 
 Done. Now an example of how to reuse one of the plotting scripts. First install some python packages:  
-`python3 -m pip install matplotlib seaborn statsmodels`
+`python3 -m pip install matplotlib seaborn statsmodels`  
 To look at the parameter distribution, after filtering on the bootstrap distributions, you can run (takes ~3 seconds):  
 `python3 -Wignore ../kinetics_plotting/plot_parameter_distributions_with_bootstrap_filters_v3.py demo_kinetics_from_maximum_likelihood.csv --degradation demo_degradation_output.csv --expression_level_basis demo_kinetics_from_lookup.tsv -r 1 2 50 --conf 50 --single_plot --draw_CI -o demo_fictional_parameter_distribution_plot.pdf --sep ,`  
 Due to the filtering and the few genes in the demo file, not all parameters can be plotted. Ignore the 'posx and posy should be finite values' warning and the gmean values.

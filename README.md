@@ -10,3 +10,5 @@ In the folder `data_processing`, you can find scripts and instructions on how to
 In the folder `kinetics_lookup`, you can find script for generating initial burst kinetic estimates from molecular counts. These estimates can be refined using the scripts in the folder `inference_ML`. To see the script we used to plot the resulting data, look in the folder `kinetics_plotting`, these script will also use some of the output of the scripts in `misc_kinetics`.
 
 In the folder `cobursting`, you can find script that were used for our cobursting analysis.
+
+Some of the folders contain additional readme files for further information.

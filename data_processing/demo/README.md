@@ -1,4 +1,4 @@
-This demo starts from fastq files from a NASC-Seq2 experiment and runs an extended version of the zUMIs alignment pipeline that includes the NASC-Seq2 scripts in this repository. The demo is written for Linux.
+This demo starts from fastq files from a NASC-Seq2 experiment, aligns the reads, cluster them by molecule and processes them into an anndata file with separated counts for new and old RNA. The demo is written for Linux.
 
 First install stitcher and zUMIs, for example by running (takes ~2 minutes):  
 `git clone https://github.com/AntonJMLarsson/stitcher.py`  
@@ -16,3 +16,8 @@ Decompress the relevant files (takes ~10 seconds):
 
 And now run zUMIs:  
 `zUMIs/zUMIs.sh -c -y demo_zUMIs_NASCseq2.yaml`  
+
+Install the dependencies needed for NASCseqV2.py, as listed at https://github.com/sandberg-lab/NASC-seq2/blob/master/data_processing/README.md
+
+And then the NASC-Seq2-specific steps:  
+`python3 NASCseqV2.py -y demo_zUMIs_NASCseq2.yaml`

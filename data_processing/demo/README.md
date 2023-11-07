@@ -1,7 +1,7 @@
 To run this pipeline from the demo fastq files on Linux, first install stitcher and zUMIs, for example by running (takes ~2 minutes):  
 `git clone https://github.com/AntonJMLarsson/stitcher.py`  
 `git clone https://github.com/sdparekh/zUMIs.git`  
-Also install STAR from https://github.com/alexdobin/STAR/archive/2.7.3a.tar.gz or some other part of https://github.com/alexdobin/STAR that matches the version in zUMIs.
+Also install STAR from https://github.com/alexdobin/STAR/archive/2.7.3a.tar.gz or some other part of https://github.com/alexdobin/STAR that matches the version in zUMIs well enough.
 
 Download the mouse genome and index the genome (takes about ~20 minutes):  
 `wget https://ftp.ensembl.org/pub/current_fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.primary_assembly.fa.gz`  

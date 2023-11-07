@@ -1,4 +1,4 @@
-This demo shows how to use the script in this repository to go from a molecular count table, for single-cell NASC-Seq2 data or similar nascent RNA labeling data, to burst kinetic parameters of the telegraph model, that is, k<sub>on</sub>, k<sub>off</sub> and k<sub>syn</sub> where k<sub>on</sub> is the rate of transiting from OFF to ON state, k<sub>off</sub> is the rate from ON to OFF and k<sub>syn</sub> is the rate of transcription within the ON state.
+This demo shows how to use the script in this repository to go from a molecular count table, for single-cell NASC-Seq2 data or similar nascent RNA labeling data, to burst kinetic parameters of the telegraph model, that is, k<sub>on</sub>, k<sub>off</sub> and k<sub>syn</sub> where k<sub>on</sub> is the rate of transiting from OFF to ON state, k<sub>off</sub> is the rate from ON to OFF and k<sub>syn</sub> is the rate of transcription within the ON state. The demo runs off csv files, check at the bottom for using anndata files.
 
 To run the code, you will need python3 (available at https://www.python.org/downloads/) and install python packages (see https://pip.pypa.io/en/stable/installation/ if pip is missing):  
 `python3 -m pip install pandas scipy numpy joblib`  
@@ -29,3 +29,9 @@ Done. Now an example of how to reuse one of the plotting scripts. First install 
 To look at the parameter distribution, after filtering on the bootstrap distributions, you can run (takes ~3 seconds):  
 `python3 -Wignore ../kinetics_plotting/plot_parameter_distributions_with_bootstrap_filters_v3.py demo_kinetics_from_maximum_likelihood.csv --degradation demo_degradation_output.csv --expression_level_basis demo_kinetics_from_lookup.tsv -r 1 2 50 --conf 50 --single_plot --draw_CI -o demo_fictional_parameter_distribution_plot.pdf --sep ,`  
 Ignore the gmean values in the output.
+
+If you start with an anndata file from data_processing/write_anndata_object.py called say mydata.h5ad, convert them first with:  
+`python3 -m pip install anndata pandas`  
+`python3 ../misc_kinetics/anndata_to_csv.py mydata.h5ad new > mydata_newrna.csv`  
+`python3 ../misc_kinetics/anndata_to_csv.py mydata.h5ad old > mydata_oldrna.csv`  
+and use them in place of demo_newrna_reconstructedmolecules.csv and demo_oldrna_reconstructedmolecules.csv.

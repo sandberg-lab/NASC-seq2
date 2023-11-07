@@ -16,7 +16,7 @@ The main kinetic-parameters-to-summary-statistics table we used for the study ca
 `python3 ../parameter_table_calc_from_prob_3proxies.py --open_rate 0.002 50 8 --transcribe_rate 1 200 4 --degrade_rate 0.258 0.258 1 --close_rate 0.25 500 5 --time 1.23 1.23 1 --proc 260 --prec 10000 --table_out demo_m_table.tsv`  
 Then remove extreme values that get in the way of linear interpolation (takes ~1 second):  
 `python3 ../trim_lookup_table.py demo_m_table.tsv`  
-This will create `demo_m_table.trimmed.tsv`, this file goes after -m in bootstrap_nonzero_three_estimate_lookup_one_csv_v5.py. Replace 8 with 73 (3rd argument for --open_rate), 4 with 38 (3rd argument for --transcribe_rate) and 5 with 55 (3rd argument for --close_rate) for more accurate downstream results (takes 20-30 minutes), and adjust --proc based on your CPUs. 
+This will create `demo_m_table.trimmed.tsv`, this file goes after -m in bootstrap_nonzero_three_estimate_lookup_one_csv_v5.py. Replace 8 with 73 (3rd argument for --open_rate), 4 with 38 (3rd argument for --transcribe_rate) and 5 with 55 (3rd argument for --close_rate) for more accurate downstream results (takes hours to run), and adjust --proc based on your CPUs. 
 
 Now you can run the initial estimation of the burst kinetic parameters (takes ~20 seconds):  
 `python3 ../bootstrap_nonzero_three_estimate_lookup_one_csv_v5.py demo_newrna_reconstructedmolecules.csv demo_kinetics_from_lookup.tsv -m demo_m_table.trimmed.tsv --lookup_mode interp nearest noborders --proc 4 1 --reuse_lookups --bootstraps 50`

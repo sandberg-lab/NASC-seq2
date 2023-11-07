@@ -1,4 +1,6 @@
-To run this pipeline from the demo fastq files on Linux, first install stitcher and zUMIs, for example by running (takes ~2 minutes):  
+This demo starts from fastq files from a NASC-Seq2 experiment and runs an extended version of the zUMIs alignment pipeline that includes the NASC-Seq2 scripts in this repository. The demo is written for Linux.
+
+First install stitcher and zUMIs, for example by running (takes ~2 minutes):  
 `git clone https://github.com/AntonJMLarsson/stitcher.py`  
 `git clone https://github.com/sdparekh/zUMIs.git`  
 Also install STAR from https://github.com/alexdobin/STAR/archive/2.7.3a.tar.gz or some other part of https://github.com/alexdobin/STAR that matches the version in zUMIs well enough.

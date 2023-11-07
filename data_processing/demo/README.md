@@ -16,6 +16,7 @@ Decompress the relevant files (takes ~10 seconds):
 
 And now run zUMIs:  
 `zUMIs/zUMIs.sh -c -y demo_zUMIs_NASCseq2.yaml`  
+Terminate Vim when it causes the process to hang (use top to find the PID for zUMIs.sh and run kill [PIDnumber], and zUMIs will continue to run).
 
 Install the dependencies needed for NASCseqV2.py:  
 `python3 -m pip install joblib pandas numpy h5py scipy pysam pygtrie seaborn pyfaidx portion pyvcf pyyaml anndata tensorflow`  

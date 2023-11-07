@@ -59,9 +59,14 @@ def test_genepair(gene1, gene2, g1_new_alt, g1_new_ref, g2_new_alt, g2_new_ref, 
     nmx = (n+n2)/2. - (x1+x2)/2.
     return gene1, gene2, n, n2, x1, x2, nmx, nonallele
 
-
-new_alt = pd.read_hdf('alt_new.h5', 'alt_new')
-new_ref = pd.read_hdf('ref_new.h5', 'ref_new')
+try:
+    new_alt = pd.read_hdf('alt_new.h5', 'alt_new')
+except:
+    new_alt = pd.read_csv('mousefibroblasts_newrna_altallele_umicounts.csv.bz2', index_col=0)
+try:
+    new_ref = pd.read_hdf('ref_new.h5', 'ref_new')
+except:
+    new_ref = pd.read_csv('mousefibroblasts_newrna_refallele_umicounts.csv.bz2', index_col=0)
 new_altX = new_alt.values
 new_refX = new_ref.values
     

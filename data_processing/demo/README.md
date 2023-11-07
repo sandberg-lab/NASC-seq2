@@ -3,7 +3,7 @@ This demo starts from fastq files from a NASC-Seq2 experiment, aligns the reads,
 First install stitcher and zUMIs, for example by running (takes ~2 minutes):  
 `git clone https://github.com/AntonJMLarsson/stitcher.py`  
 `git clone https://github.com/sdparekh/zUMIs.git`  
-Also install STAR from https://github.com/alexdobin/STAR/archive/2.7.3a.tar.gz or some other part of https://github.com/alexdobin/STAR that matches the version in zUMIs well enough.
+Also install STAR from https://github.com/alexdobin/STAR/archive/2.7.3a.tar.gz or some other part of https://github.com/alexdobin/STAR that matches the version in zUMIs well enough.  
 
 Download the mouse genome and index the genome (takes about ~20 minutes):  
 `wget https://ftp.ensembl.org/pub/current_fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.primary_assembly.fa.gz`  
@@ -17,7 +17,9 @@ Decompress the relevant files (takes ~10 seconds):
 And now run zUMIs:  
 `zUMIs/zUMIs.sh -c -y demo_zUMIs_NASCseq2.yaml`  
 
-Install the dependencies needed for NASCseqV2.py, as listed at https://github.com/sandberg-lab/NASC-seq2/blob/master/data_processing/README.md
+Install the dependencies needed for NASCseqV2.py:  
+`python3 -m pip install joblib pandas numpy h5py scipy pysam pygtrie seaborn pyfaidx portion pyvcf pyyaml`  
+`Rscript -e 'install.packages(c("data.table", "dtplyr", "dplyr", "parallel", "Rsamtools", "tictoc"))'`
 
 And then the NASC-Seq2-specific steps:  
 `python3 NASCseqV2.py -y demo_zUMIs_NASCseq2.yaml`

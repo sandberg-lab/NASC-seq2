@@ -1,7 +1,7 @@
 ## "Single-cell new RNA sequencing reveals principles of transcription at the resolution of individual bursts".
-This repository contains scripts and tabular data related to a forthcoming manuscript that describes the RNA library preparation method NASC-Seq2 and presents data analysis using such data to study transcriptional burst kinetics and gene cobursting.
+This repository contains scripts and tabular data related to 4sU-based single-cell RNA-seq for improved inference of transcriptional bursting kinetics, and transcriptome-wide analysis of co-bursting.
 
-The tabular data, meaning count tables and estimated burst kinetics from the study, can be found in folder `data_tables` of this repository.
+We provide the following tabular data: New RNA counts tables (at allelic resolition) and transcriptome-wide inferred kinetic parameters. Both these are found in the folder `data_tables` of this repository.
 
 For script, there are three catogories, corresponding to the sections of the manuscript:
 

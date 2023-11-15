@@ -1,6 +1,9 @@
 ## "Single-cell new RNA sequencing reveals principles of transcription at the resolution of individual bursts".
 This repository contains scripts and tabular data related to 4sU-based single-cell RNA-seq for improved inference of transcriptional bursting kinetics, and transcriptome-wide analysis of co-bursting.
 
+![alt text](https://github.com/sandberg-lab/NASC-seq2/blob/master/images/im1.jpg?raw=true)
+
+
 We provide the following tabular data: New RNA counts tables (at allelic resolition) and transcriptome-wide inferred kinetic parameters. Both these are found in the folder `data_tables` of this repository.
 
 For script, there are three catogories, corresponding to the sections of the manuscript:

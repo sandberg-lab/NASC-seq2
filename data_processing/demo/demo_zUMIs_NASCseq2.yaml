@@ -33,7 +33,7 @@ reference:
   exon_extension: no #extend exons by a certain width?
   extension_length: 0 #number of bp to extend exons by
   scaffold_length_min: 0 #minimal scaffold/chromosome length to consider (0 = all)
-  additional_files: diySpikesExtracted.fa #Optional parameter. It is possible to give additional reference sequences here, eg ERCC.fa
+  additional_files: #diySpikesExtracted.fa #Optional parameter. It is possible to give additional reference sequences here, eg ERCC.fa
   additional_STAR_params: '--outFilterMismatchNmax 40 --outFilterMismatchNoverLmax 0.25 --outSAMattributes MD NH HI AS nM XS --outSAMstrandField intronMotif --clip3pAdapterSeq CTGTCTCTTATACACATCT' #Optional parameter. you may add custom mapping parameters to STAR here
 
 #output directory

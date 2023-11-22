@@ -20,7 +20,7 @@ NASC-seq:
   
 ```
 In addition to the produced datafiles, logfiles of both executed commands and warning messages/error messages are automatically saved to the experiment directory.
-Please note that some of the zUMIs settings (such as num_threads and num_memory) are used in NASCseqV3.py. If you want to use less resources, you will have to change these settings there. 
+Please note that some of the zUMIs settings (such as num_threads and num_memory) are used in NASCseqV2.py. If you want to use less resources, you will have to change these settings there. 
 
 ### Dependencies
 
@@ -28,19 +28,17 @@ Please note that some of the zUMIs settings (such as num_threads and num_memory)
 * joblib
 * pandas
 * numpy
-* yaml
+* pyyaml
 * h5py
 * scipy
-* multiprocessing
 * pysam
 * pygtrie
-* itertools
-* vcf
-* gc
 * seaborn
+* pyvcf
 * pyfaidx
 * portion
-* collections
+* anndata
+* tensorflow
 
 #### R:
 * data.table

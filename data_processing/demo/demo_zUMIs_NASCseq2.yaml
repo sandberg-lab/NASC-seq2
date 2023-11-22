@@ -85,9 +85,15 @@ NASC-seq:
   NASC-stage: 'all' ## Possible values ('stitcher','tag','extract','estim_pc','hyptest','all') ## Use 'all' to run all steps directly.
   script_dir: '/home/danielr/tmp/data_processing/demo/../' ## Directory where to find scripts for NASC-seq data analysis
   verbose: False ## Should commands actually be ran. Used for testing...
-  vcf: #'vcfFilePath.vcf' ## Optional, add in vcf file to be used for allele assignment
+  vcf: /home/danielr/tmp/data_processing/demo/demo_CAST.SNPs.validated.passedFiltering.liftover.head.vcf.gz ## Optional, add in vcf file to be used for allele assignment
   fasta:  '/home/danielr/tmp/data_processing/demo/Mus_musculus.GRCm39.dna.primary_assembly.fa.gz' ## The fasta file corresponding to the genome used for alignment of the data.
   isoform: '/home/danielr/tmp/data_processing/demo/hg38_unique_intervals_for_isoforms.json' ## .json file with isoform information.
   junction: '/home/danielr/tmp/data_processing/demo/hg38_unique_refskip_for_isoforms.json' ## .json file with junction information.
   stitcher_exec: '/home/danielr/tmp/data_processing/demo/stitcher.py/stitcher.py' ## Location of stitcher.py
   spikeID: 'diySpike' ## Pattern identifying spike reads that are to be treated as such.
+samtools_exec: samtools
+pigz_exec: pigz
+STAR_exec: STAR
+Rscript_exec: Rscript
+zUMIs_directory: /home/danielr/tmp/data_processing/demo/zUMIs
+read_layout: PE

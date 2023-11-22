@@ -14,9 +14,10 @@ Download the mouse genome and index the genome (takes about ~20 minutes):
 Decompress the relevant files (takes ~10 seconds):  
 `bunzip2 ../../data_tables/NASCseqPF3.final_annot.gtf.bz2 NASCseqPF3.final_annot.intervals.json.bz2 NASCseqPF3.final_annot.refskip.json.bz2`  
 
-And now run zUMIs (takes ~1 hour, empty output here):  
+In demo_zUMIs_NASCseq2.yaml, change all mentions of /home/danielr/tmp/ to your own base folder.
+
+And now run zUMIs (takes a few hours):  
 `zUMIs/zUMIs.sh -c -y demo_zUMIs_NASCseq2.yaml`  
-Terminate Vim when it causes the process to hang (use top to find the PID for zUMIs.sh and run kill [PIDnumber], and zUMIs will continue to run).
 
 Install the dependencies needed for NASCseqV2.py:  
 `python3 -m pip install joblib pandas numpy h5py scipy pysam pygtrie seaborn pyfaidx portion pyvcf pyyaml anndata tensorflow`  

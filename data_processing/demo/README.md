@@ -20,7 +20,7 @@ And now run zUMIs (takes ~2 hours):
 `zUMIs/zUMIs.sh -c -y demo_zUMIs_NASCseq2.yaml`  
 
 Install the dependencies needed for NASCseqV2.py:  
-`python3 -m pip install joblib pandas numpy h5py scipy pysam pygtrie seaborn pyfaidx portion pyvcf pyyaml anndata tensorflow portion`  
+`python3 -m pip install joblib pandas numpy h5py scipy pysam pygtrie seaborn pyfaidx portion pyvcf pyyaml anndata tensorflow`  
 `Rscript -e 'install.packages(c("data.table", "dtplyr", "dplyr", "parallel", "Rsamtools", "tictoc"))'`
 
 And then the NASC-Seq2-specific steps (takes ~1 minute due to having too few reads in the demo files):  

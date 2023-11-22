@@ -24,6 +24,6 @@ Install the dependencies needed for NASCseqV2.py:
 `Rscript -e 'install.packages(c("data.table", "dtplyr", "dplyr", "parallel", "Rsamtools", "tictoc"))'`
 
 And then the NASC-Seq2-specific steps (takes ~1 minute due to having too few reads in the demo files):  
-`python3 NASCseqV2.py -y demo_zUMIs_NASCseq2.yaml`
+`python3 ../NASCseqV2.py -y demo_zUMIs_NASCseq2.yaml`
 
 Output format is anndata (.h5ad).

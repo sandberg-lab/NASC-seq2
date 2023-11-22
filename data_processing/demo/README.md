@@ -16,12 +16,14 @@ Decompress the relevant files (takes ~10 seconds):
 
 In demo_zUMIs_NASCseq2.yaml, change all mentions of /home/danielr/tmp/ to your own base folder.
 
-And now run zUMIs (takes a few hours):  
+And now run zUMIs (takes ~2 hours):  
 `zUMIs/zUMIs.sh -c -y demo_zUMIs_NASCseq2.yaml`  
 
 Install the dependencies needed for NASCseqV2.py:  
-`python3 -m pip install joblib pandas numpy h5py scipy pysam pygtrie seaborn pyfaidx portion pyvcf pyyaml anndata tensorflow`  
+`python3 -m pip install joblib pandas numpy h5py scipy pysam pygtrie seaborn pyfaidx portion pyvcf pyyaml anndata tensorflow portion`  
 `Rscript -e 'install.packages(c("data.table", "dtplyr", "dplyr", "parallel", "Rsamtools", "tictoc"))'`
 
-And then the NASC-Seq2-specific steps:  
+And then the NASC-Seq2-specific steps (takes ~1 minute due to having too few reads in the demo files):  
 `python3 NASCseqV2.py -y demo_zUMIs_NASCseq2.yaml`
+
+Output format is anndata (.h5ad).

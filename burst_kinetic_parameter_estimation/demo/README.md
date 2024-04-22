@@ -12,7 +12,7 @@ Either use the existing hyp1f1_arb_vector.so file (already compiled for linux ub
 `sudo apt install libflint-arb-dev`  # or one of the other installation options at https://arblib.org/setup.html  
 `make`  
 
-The main kinetic-parameters-to-summary-statistics table we used for the study can be found under the name table3prox_2h_7deg0.065.trimmed.tsv. To use a different degradation rate and/or time, for example a degradation rate of 0.258/h and a time of 1.23 hours, run (takes 2-3 minutes):  
+The main kinetic-parameters-to-summary-statistics table we used for the study can be found under the name table3prox_2h_7deg0.065.trimmed.tsv. To use a different degradation rate and/or time, for example a degradation rate of 0.258/h and a time of 1.23 hours (arbitrary values, change to relavent values for your experiment), run (takes 2-3 minutes):  
 `python3 ../parameter_table_calc_from_prob_3proxies.py --open_rate 0.002 50 8 --transcribe_rate 1 200 4 --degrade_rate 0.258 0.258 1 --close_rate 0.25 500 5 --time 1.23 1.23 1 --proc 260 --prec 10000 --table_out demo_m_table.tsv`  
 Then remove extreme values that get in the way of linear interpolation (takes ~1 second):  
 `python3 ../trim_lookup_table.py demo_m_table.tsv`  

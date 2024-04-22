@@ -20,6 +20,7 @@ This will create `demo_m_table.trimmed.tsv`, this file goes after -m in bootstra
 
 Now you can run the initial estimation of the burst kinetic parameters (takes ~20 seconds):  
 `python3 ../bootstrap_nonzero_three_estimate_lookup_one_csv_v5.py demo_newrna_reconstructedmolecules.csv demo_kinetics_from_lookup.tsv -m demo_m_table.trimmed.tsv --lookup_mode interp nearest noborders --proc 4 1 --reuse_lookups --bootstraps 50`
+You can increase the first number after --proc to speed up the program.
 
 And then refine the numbers (especially lowly expressed genes) by running (takes ~25 minutes):  
 `python3 ../transient_ml_v2.py -i demo_newrna_reconstructedmolecules.csv --guesses demo_kinetics_from_lookup.tsv -d 0.258 --prec 10000 --time 1.23 --threads 200 -o demo_kinetics_from_maximum_likelihood.tsv`

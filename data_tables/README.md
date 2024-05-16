@@ -14,4 +14,4 @@ This folder contain new RNA counts matrices and inferred transcriptional burstin
 
 ### General information on decompressing
 
-Files named [something].bz2.part[suffix] can be decompressed in mac/linux bash using "cat [something].bz2.part* |bunzip2 -c > [something]", for example "cat cat fibroblast_cobursting/mousefibroblasts_newrna_altallele_umicounts.csv.bz2.part* |bunzip2 -c > fibroblast_cobursting/mousefibroblasts_newrna_altallele_umicounts.csv. On Windows the command should be "copy [something].bz2.partaa+[something].bz2.partab [something].bz2" followed by using a decompression tool.
+Files named [something].bz2.part[suffix] can be decompressed in mac/linux bash using "cat [something].bz2.part* |bunzip2 -c > [something]", for example "cat fibroblast_cobursting/mousefibroblasts_newrna_altallele_umicounts.csv.bz2.part* |bunzip2 -c > fibroblast_cobursting/mousefibroblasts_newrna_altallele_umicounts.csv. On Windows the command should be "copy [something].bz2.partaa+[something].bz2.partab [something].bz2" followed by using a decompression tool.

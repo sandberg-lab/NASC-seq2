@@ -15,3 +15,5 @@ In the folder `kinetics_lookup`, you can find script for generating burst kineti
 In the folder `cobursting`, you can find script that were used for our cobursting analysis.
 
 Some of the folders contain additional readme files for further information.
+
+Detailed information on how to pre-process data and run these scripts are provided in the data_processing/demo folder.
